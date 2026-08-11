@@ -41,10 +41,10 @@ export const useUiStore = defineStore('ui', () => {
 
   /** 展示确认弹窗；新请求会先取消旧请求，避免调用方永久等待。 */
   function confirm(options: ConfirmOptions): Promise<boolean> {
-    settleConfirmation(false)
-    if (options.tone === 'danger' && !hasDestructiveAction(options.confirmLabel)) {
+    if (!isValidConfirmOptions(options)) {
       return Promise.reject(new Error('危险确认按钮必须包含明确动作，例如“删除账号”或“清空记录”。'))
     }
+    settleConfirmation(false)
 
     return new Promise<boolean>((resolve) => {
       confirmation.value = options
@@ -107,6 +107,11 @@ export const useUiStore = defineStore('ui', () => {
   function hasDestructiveAction(label: string): boolean {
     const action = label.replace(/[\s\p{P}\p{S}]/gu, '')
     return DESTRUCTIVE_ACTION_PATTERN.test(action)
+  }
+
+  /** 在变更当前请求前完整校验新请求，避免无效危险操作打断已有确认。 */
+  function isValidConfirmOptions(options: ConfirmOptions): boolean {
+    return options.tone !== 'danger' || hasDestructiveAction(options.confirmLabel)
   }
 
   onScopeDispose(disposeUiState)
