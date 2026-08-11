@@ -6,7 +6,7 @@
 
 **架构：**应用使用 Vue Router 组织首页与师门页，Pinia 作为唯一业务状态源，版本化 `localStorage` 负责持久化。计时保存绝对时间戳，界面每秒推导显示值而不每秒写盘；账号和店铺 UI 通过领域 action 修改状态，不直接接触存储格式。
 
-**技术栈：**Vue 3.5、TypeScript 7、Vite 8、Vue Router 5、Pinia 4、`vue-draggable-plus`、`lucide-vue-next`、原生 CSS、ESLint 10。
+**技术栈：**Vue 3.5、TypeScript 6.0.3、Vite 8、Vue Router 5、Pinia 4、`vue-draggable-plus`、`lucide-vue-next`、原生 CSS、ESLint 10。
 
 ## 全局约束
 
@@ -95,7 +95,7 @@ src/
       "@vitejs/plugin-vue": "^6.0.8",
       "eslint": "^10.8.1",
       "eslint-plugin-vue": "^10.10.0",
-      "typescript": "^7.0.2",
+      "typescript": "^6.0.3",
       "typescript-eslint": "^8.67.0",
       "vite": "^8.2.1",
       "vue-tsc": "^3.3.9"
