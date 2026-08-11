@@ -24,9 +24,15 @@ const SHOP_CATEGORIES: readonly ShopCategory[] = ['medicine', 'furniture', 'summ
 export interface LoadResult {
   state: PersistedState
   warning: string | null
+  recovery: PendingCorruptBackup | null
 }
 
 export type SaveResult = { ok: true } | { ok: false; message: string }
+
+export interface PendingCorruptBackup {
+  readonly raw: string
+  readonly backupKey: string
+}
 
 /** 创建属于当前本地自然日的空白持久化状态。 */
 export function createDefaultPersistedState(now: Date = new Date()): PersistedState {
@@ -48,11 +54,12 @@ export function loadPersistedState(): LoadResult {
     return {
       state: createDefaultPersistedState(),
       warning: `读取本地数据失败：${getErrorMessage(error)}`,
+      recovery: null,
     }
   }
 
   if (raw === null) {
-    return { state: createDefaultPersistedState(), warning: null }
+    return { state: createDefaultPersistedState(), warning: null, recovery: null }
   }
 
   try {
@@ -60,17 +67,36 @@ export function loadPersistedState(): LoadResult {
     if (!isPersistedState(parsed)) {
       throw new Error('数据结构或版本不受支持')
     }
-    return { state: parsed, warning: null }
+    return { state: parsed, warning: null, recovery: null }
   } catch (error: unknown) {
+    const recovery = createPendingCorruptBackup(raw)
+    const backupResult = backupCorruptState(recovery)
     return {
       state: createDefaultPersistedState(),
-      warning: backupCorruptState(raw, error),
+      warning: backupResult.ok
+        ? `本地数据已损坏，已备份到 ${recovery.backupKey} 并恢复为空白状态：${getErrorMessage(error)}`
+        : `本地数据已损坏，备份成功前将禁止覆盖原数据：${getErrorMessage(error)}；${backupResult.message}`,
+      recovery: backupResult.ok ? null : recovery,
     }
   }
 }
 
-/** 保存完整状态并以结果对象暴露浏览器存储错误。 */
-export function savePersistedState(state: PersistedState): SaveResult {
+/** 保存完整状态；存在待备份原文时，必须先完成备份才允许覆盖主键。 */
+export function savePersistedState(
+  state: PersistedState,
+  recovery: PendingCorruptBackup | null,
+): SaveResult {
+  if (!isPersistedState(state)) {
+    return { ok: false, message: '保存已拒绝：待保存数据结构无效' }
+  }
+
+  if (recovery !== null) {
+    const backupResult = backupCorruptState(recovery)
+    if (!backupResult.ok) {
+      return { ok: false, message: `保存已阻止，损坏原文尚未备份：${backupResult.message}` }
+    }
+  }
+
   try {
     localStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state))
     return { ok: true }
@@ -160,16 +186,18 @@ function hasUniqueIds(values: readonly { id: string }[]): boolean {
   return new Set(values.map(({ id }) => id)).size === values.length
 }
 
-/** 备份损坏原文，并返回包含备份结果的中文警告。 */
-function backupCorruptState(raw: string, cause: unknown): string {
-  const reason = getErrorMessage(cause)
-  const backupKey = `${CORRUPT_KEY_PREFIX}${Date.now()}`
+/** 创建可跨多次保存重试的损坏原文备份任务。 */
+function createPendingCorruptBackup(raw: string): PendingCorruptBackup {
+  return { raw, backupKey: `${CORRUPT_KEY_PREFIX}${Date.now()}` }
+}
 
+/** 尝试备份损坏原文，并以保存结果暴露失败原因。 */
+function backupCorruptState(recovery: PendingCorruptBackup): SaveResult {
   try {
-    localStorage.setItem(backupKey, raw)
-    return `本地数据已损坏，已备份到 ${backupKey} 并恢复为空白状态：${reason}`
+    localStorage.setItem(recovery.backupKey, recovery.raw)
+    return { ok: true }
   } catch (error: unknown) {
-    return `本地数据已损坏，但备份失败并已恢复为空白状态：${reason}；备份错误：${getErrorMessage(error)}`
+    return { ok: false, message: `备份损坏数据失败：${getErrorMessage(error)}` }
   }
 }
 
