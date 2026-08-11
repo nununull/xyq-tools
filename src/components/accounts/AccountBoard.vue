@@ -43,9 +43,29 @@ function startDragging(): void {
 }
 
 /** 将拖拽完成后的 ID 顺序一次性交给领域方法落库。 */
-function finishDragging(): void {
+function commitAccountOrder(): void {
   toolStore.reorderAccounts(sortableAccounts.value.map(({ id }) => id))
+}
+
+/** 提交拖拽结果并恢复领域顺序，结束本轮拖动。 */
+function finishDragging(): void {
+  commitAccountOrder()
   dragging = false
+  syncSortableAccounts()
+}
+
+/** 用键盘移动单个账号，并复用领域重排方法持久化完整顺序。 */
+function moveAccount(id: string, direction: 'up' | 'down'): void {
+  const currentIndex = sortableAccounts.value.findIndex((account) => account.id === id)
+  const targetIndex = currentIndex + (direction === 'up' ? -1 : 1)
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sortableAccounts.value.length) return
+
+  const reorderedAccounts = [...sortableAccounts.value]
+  const [account] = reorderedAccounts.splice(currentIndex, 1)
+  if (account === undefined) return
+  reorderedAccounts.splice(targetIndex, 0, account)
+  sortableAccounts.value = reorderedAccounts
+  commitAccountOrder()
   syncSortableAccounts()
 }
 
@@ -135,11 +155,13 @@ watch(
       @end="finishDragging"
     >
       <AccountCard
-        v-for="account in sortableAccounts"
+        v-for="(account, index) in sortableAccounts"
         :key="account.id"
         :account="account"
         :now="now"
         :recommended="recommendedAccount?.id === account.id"
+        :can-move-up="index > 0"
+        :can-move-down="index < sortableAccounts.length - 1"
         @start="emit('start', $event)"
         @pause="emit('pause', $event)"
         @wait="emit('wait', $event)"
@@ -147,6 +169,7 @@ watch(
         @reopen="emit('reopen', $event)"
         @edit="emit('edit', $event)"
         @remove="emit('remove', $event)"
+        @move="moveAccount"
       />
     </VueDraggable>
   </section>

@@ -1,5 +1,5 @@
 <template>
-  <main class="home-view">
+  <div class="home-view">
     <section
       class="home-view__welcome"
       aria-labelledby="home-title"
@@ -54,7 +54,7 @@
         </article>
       </div>
     </section>
-  </main>
+  </div>
 </template>
 
 <style scoped>

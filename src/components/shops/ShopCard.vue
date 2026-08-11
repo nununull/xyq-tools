@@ -1,13 +1,17 @@
 <script setup lang="ts">
+/* global KeyboardEvent */
 import type { Shop } from '@/types/domain'
 
 const props = defineProps<{
   shop: Shop
+  canMoveUp: boolean
+  canMoveDown: boolean
 }>()
 
 const emit = defineEmits<{
   edit: [id: string]
   remove: [id: string]
+  move: [id: string, direction: 'up' | 'down']
 }>()
 
 /** 请求编辑当前店铺资料。 */
@@ -19,6 +23,17 @@ function editShop(): void {
 function removeShop(): void {
   emit('remove', props.shop.id)
 }
+
+/** 用上下方向键请求移动店铺，越过分类边界时不改变顺序。 */
+function handleSortKey(event: KeyboardEvent): void {
+  const direction = event.key === 'ArrowUp' ? 'up' : event.key === 'ArrowDown' ? 'down' : null
+  if (direction === null) return
+
+  event.preventDefault()
+  if (direction === 'up' && !props.canMoveUp) return
+  if (direction === 'down' && !props.canMoveDown) return
+  emit('move', props.shop.id, direction)
+}
 </script>
 
 <template>
@@ -26,13 +41,17 @@ function removeShop(): void {
     class="shop-card"
     :aria-label="`店铺 ${shop.number} ${shop.name}`"
   >
-    <span
+    <button
       class="shop-card__drag-handle"
-      :aria-label="`拖动店铺 ${shop.number} ${shop.name} 调整顺序`"
-      role="img"
+      type="button"
+      :aria-label="`调整店铺 ${shop.number} ${shop.name} 顺序，按上、下方向键移动`"
+      :title="`拖动排序；按上、下方向键移动店铺 ${shop.number} ${shop.name}`"
+      aria-keyshortcuts="ArrowUp ArrowDown"
+      :aria-disabled="!canMoveUp && !canMoveDown"
+      @keydown="handleSortKey"
     >
-      ⠿
-    </span>
+      <span aria-hidden="true">⠿</span>
+    </button>
 
     <div class="shop-card__content">
       <header>

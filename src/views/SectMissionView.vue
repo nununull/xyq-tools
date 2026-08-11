@@ -255,7 +255,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 </script>
 
 <template>
-  <main class="sect-mission-view">
+  <div class="sect-mission-view">
     <header class="sect-mission-view__header">
       <div>
         <p class="sect-mission-view__eyebrow">
@@ -414,7 +414,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
       @save="saveAccount"
       @close="closeAccountForm"
     />
-  </main>
+  </div>
 </template>
 
 <style scoped>

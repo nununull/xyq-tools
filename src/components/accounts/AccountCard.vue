@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* global KeyboardEvent */
 import { computed } from 'vue'
 import type { Account, AccountStatus } from '@/types/domain'
 
@@ -6,6 +7,8 @@ const props = defineProps<{
   account: Account
   now: number
   recommended: boolean
+  canMoveUp: boolean
+  canMoveDown: boolean
 }>()
 
 const emit = defineEmits<{
@@ -16,6 +19,7 @@ const emit = defineEmits<{
   reopen: [id: string]
   edit: [id: string]
   remove: [id: string]
+  move: [id: string, direction: 'up' | 'down']
 }>()
 
 const STATUS_LABELS: Record<AccountStatus, string> = {
@@ -83,6 +87,17 @@ function editAccount(): void {
 function removeAccount(): void {
   emit('remove', props.account.id)
 }
+
+/** 用上下方向键请求移动账号，边界方向保持原顺序。 */
+function handleSortKey(event: KeyboardEvent): void {
+  const direction = event.key === 'ArrowUp' ? 'up' : event.key === 'ArrowDown' ? 'down' : null
+  if (direction === null) return
+
+  event.preventDefault()
+  if (direction === 'up' && !props.canMoveUp) return
+  if (direction === 'down' && !props.canMoveDown) return
+  emit('move', props.account.id, direction)
+}
 </script>
 
 <template>
@@ -95,13 +110,17 @@ function removeAccount(): void {
     :aria-label="`账号 ${account.name}`"
   >
     <header class="account-card__header">
-      <span
+      <button
         class="account-card__drag-handle"
-        :aria-label="`拖动账号 ${account.name} 调整顺序`"
-        role="img"
+        type="button"
+        :aria-label="`调整账号 ${account.name} 顺序，按上、下方向键移动`"
+        :title="`拖动排序；按上、下方向键移动账号 ${account.name}`"
+        aria-keyshortcuts="ArrowUp ArrowDown"
+        :aria-disabled="!canMoveUp && !canMoveDown"
+        @keydown="handleSortKey"
       >
-        ⠿
-      </span>
+        <span aria-hidden="true">⠿</span>
+      </button>
       <div class="account-card__identity">
         <div class="account-card__name-line">
           <h3>{{ account.name }}</h3>

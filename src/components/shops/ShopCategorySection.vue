@@ -31,9 +31,29 @@ function startDragging(): void {
 }
 
 /** 一次性提交当前分类的店铺 ID 顺序。 */
-function finishDragging(): void {
+function commitShopOrder(): void {
   emit('reorder', props.category, sortableShops.value.map(({ id }) => id))
+}
+
+/** 提交拖拽结果并恢复领域顺序，结束本轮拖动。 */
+function finishDragging(): void {
+  commitShopOrder()
   dragging = false
+  syncSortableShops()
+}
+
+/** 用键盘移动当前分类的单个可见店铺，并复用现有排序事件提交顺序。 */
+function moveShop(id: string, direction: 'up' | 'down'): void {
+  const currentIndex = sortableShops.value.findIndex((shop) => shop.id === id)
+  const targetIndex = currentIndex + (direction === 'up' ? -1 : 1)
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sortableShops.value.length) return
+
+  const reorderedShops = [...sortableShops.value]
+  const [shop] = reorderedShops.splice(currentIndex, 1)
+  if (shop === undefined) return
+  reorderedShops.splice(targetIndex, 0, shop)
+  sortableShops.value = reorderedShops
+  commitShopOrder()
   syncSortableShops()
 }
 
@@ -92,11 +112,14 @@ watch(
       @end="finishDragging"
     >
       <ShopCard
-        v-for="shop in sortableShops"
+        v-for="(shop, index) in sortableShops"
         :key="shop.id"
         :shop="shop"
+        :can-move-up="index > 0"
+        :can-move-down="index < sortableShops.length - 1"
         @edit="emit('edit', $event)"
         @remove="emit('remove', $event)"
+        @move="moveShop"
       />
     </VueDraggable>
   </section>

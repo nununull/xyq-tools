@@ -275,6 +275,13 @@ const navigationItems: NavigationItem[] = [
     display: none;
   }
 
+  .app-layout__brand {
+    justify-content: center;
+    width: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
   .app-layout__navigation-link {
     padding-inline: 0.5rem;
   }

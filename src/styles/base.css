@@ -205,7 +205,7 @@ dialog.base-modal {
     background: var(--surface);
   }
 
-  dialog.base-modal {
+  dialog.base-modal:modal {
     width: calc(100% - 1rem);
     margin-block: 0.5rem;
   }
