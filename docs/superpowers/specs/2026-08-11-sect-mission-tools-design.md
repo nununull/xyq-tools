@@ -40,7 +40,7 @@
 
 - 构建工具：Vite。
 - 应用框架：Vue 3 + TypeScript，统一使用 Composition API 和 `<script setup>`。
-- 路由：Vue Router，首页为 `/`，师门助手为 `/sect-mission`。
+- 路由：Vue Router Hash 模式，首页为 `/#/`，师门助手为 `/#/sect-mission`，确保任意静态托管环境直接刷新都不会依赖服务端回退规则。
 - 状态管理：Pinia。
 - 拖拽排序：`vue-draggable-plus`。
 - 图标：`lucide-vue-next`。
@@ -74,7 +74,6 @@ interface PersistedState {
   activeDate: string
   accounts: Account[]
   shops: Shop[]
-  settings: Settings
 }
 ```
 
@@ -157,7 +156,7 @@ interface Shop {
 - 所有账号恢复为 `idle`。
 - 清空有效耗时、开始时间和等待截止时间。
 - 保留账号名称、备注和排序。
-- 保留全部店铺、设置和排序。
+- 保留全部店铺和排序。
 - 更新 `activeDate`。
 
 手动重置执行同样操作，必须经过二次确认。
