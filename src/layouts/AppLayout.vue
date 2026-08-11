@@ -19,6 +19,11 @@ const navigationItems: NavigationItem[] = [
 
 <template>
   <div class="app-layout">
+    <a
+      class="app-layout__skip-link"
+      href="#main-content"
+    >跳到主要内容</a>
+
     <aside class="app-layout__sidebar">
       <RouterLink
         class="app-layout__brand"
@@ -52,6 +57,11 @@ const navigationItems: NavigationItem[] = [
           <span>{{ item.label }}</span>
         </RouterLink>
       </nav>
+
+      <p class="app-layout__storage-note">
+        <span aria-hidden="true">●</span>
+        数据只保存在当前浏览器
+      </p>
     </aside>
 
     <header class="app-layout__topbar">
@@ -89,7 +99,11 @@ const navigationItems: NavigationItem[] = [
       </nav>
     </header>
 
-    <main class="app-layout__content">
+    <main
+      id="main-content"
+      class="app-layout__content"
+      tabindex="-1"
+    >
       <RouterView />
     </main>
   </div>
@@ -100,6 +114,25 @@ const navigationItems: NavigationItem[] = [
   min-height: 100vh;
 }
 
+.app-layout__skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  padding: 0.625rem 0.875rem;
+  color: var(--surface-raised);
+  font-weight: 800;
+  text-decoration: none;
+  background: var(--mint-800);
+  border-radius: 0.5rem;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 160ms ease;
+}
+
+.app-layout__skip-link:focus {
+  transform: translateY(0);
+}
+
 .app-layout__sidebar {
   position: fixed;
   inset: 0 auto 0 0;
@@ -107,7 +140,9 @@ const navigationItems: NavigationItem[] = [
   flex-direction: column;
   width: 15rem;
   padding: 1.5rem;
-  background: var(--surface-soft);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 46%), transparent 16rem),
+    var(--surface-soft);
   border-right: 1px solid var(--border);
 }
 
@@ -137,7 +172,7 @@ const navigationItems: NavigationItem[] = [
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 2.875rem;
+  min-height: 2.75rem;
   padding: 0.625rem 0.75rem;
   color: var(--text-muted);
   font-size: 0.9375rem;
@@ -150,13 +185,31 @@ const navigationItems: NavigationItem[] = [
 
 .app-layout__navigation-link:hover {
   color: var(--text);
-  background: color-mix(in srgb, var(--surface) 68%, transparent);
+  background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
 }
 
 .app-layout__navigation-link--active {
   color: var(--mint-700);
-  background: var(--surface);
-  border-color: var(--border);
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+  box-shadow: inset 0.1875rem 0 var(--mint-700);
+}
+
+.app-layout__storage-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  padding-top: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+}
+
+.app-layout__storage-note span {
+  color: var(--mint-500);
+  font-size: 0.5rem;
 }
 
 .app-layout__topbar {
@@ -168,7 +221,7 @@ const navigationItems: NavigationItem[] = [
   margin-left: 15rem;
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 44.999rem) {
   .app-layout__sidebar {
     display: none;
   }
@@ -176,14 +229,14 @@ const navigationItems: NavigationItem[] = [
   .app-layout__topbar {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     min-height: 4.25rem;
     padding: 0.75rem 1rem;
-    background: color-mix(in srgb, var(--surface-soft) 94%, transparent);
+    background: color-mix(in srgb, var(--surface-soft) 96%, transparent);
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(0.75rem);
   }
@@ -204,6 +257,10 @@ const navigationItems: NavigationItem[] = [
     white-space: nowrap;
   }
 
+  .app-layout__navigation-link--active {
+    box-shadow: inset 0 -0.1875rem var(--mint-700);
+  }
+
   .app-layout__content {
     margin-left: 0;
   }
@@ -220,6 +277,12 @@ const navigationItems: NavigationItem[] = [
 
   .app-layout__navigation-link {
     padding-inline: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout__skip-link {
+    transition: none;
   }
 }
 </style>

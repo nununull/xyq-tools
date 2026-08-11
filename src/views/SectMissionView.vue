@@ -14,6 +14,7 @@ export function consumeNewSaveFailure(result: SaveResult | null): result is Fail
 </script>
 
 <script setup lang="ts">
+import { Bell, BellRing, Hourglass, RotateCcw } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import AccountBoard from '@/components/accounts/AccountBoard.vue'
 import AccountFormModal from '@/components/accounts/AccountFormModal.vue'
@@ -57,6 +58,7 @@ function handleTick(current: number): void {
   }
 }
 
+handleTick(Date.now())
 const { now } = useClock(handleTick)
 
 /** 将毫秒格式化为不按自然日回绕的“时:分:秒”。 */
@@ -271,7 +273,11 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
           aria-label="启用账号到期系统通知"
           @click="enableSystemNotifications"
         >
-          启用系统通知
+          <Bell
+            :size="17"
+            aria-hidden="true"
+          />
+          <span>启用系统通知</span>
         </button>
         <button
           class="sect-mission-view__danger"
@@ -279,106 +285,128 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
           aria-label="重置所有账号的今日进度"
           @click="requestDailyReset"
         >
-          重置今日进度
+          <RotateCcw
+            :size="17"
+            aria-hidden="true"
+          />
+          <span>重置今日进度</span>
         </button>
       </div>
     </header>
 
-    <section
-      class="sect-mission-view__attention"
-      aria-labelledby="attention-title"
-    >
-      <header>
-        <div>
-          <p class="sect-mission-view__section-label">
-            到期中心
-          </p>
-          <h2 id="attention-title">
-            高价值提醒
-          </h2>
+    <div class="sect-mission-view__primary">
+      <section
+        class="sect-mission-view__attention"
+        aria-labelledby="attention-title"
+      >
+        <header>
+          <div>
+            <p class="sect-mission-view__section-label">
+              到期中心
+            </p>
+            <h2 id="attention-title">
+              <BellRing
+                :size="20"
+                aria-hidden="true"
+              />
+              高价值提醒
+            </h2>
+          </div>
+          <span
+            role="status"
+            aria-live="polite"
+          >{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 可切回</span>
+        </header>
+
+        <p
+          v-if="waitingAccounts.length === 0 && readyAccounts.length === 0"
+          class="sect-mission-view__attention-empty"
+        >
+          当前没有等待中或可切回的账号。
+        </p>
+
+        <div
+          v-else
+          class="sect-mission-view__attention-groups"
+        >
+          <section
+            v-if="readyAccounts.length > 0"
+            aria-labelledby="ready-accounts-title"
+          >
+            <h3 id="ready-accounts-title">
+              <BellRing
+                :size="16"
+                aria-hidden="true"
+              />
+              可以切回
+            </h3>
+            <ul>
+              <li
+                v-for="account in readyAccounts"
+                :key="account.id"
+                class="sect-mission-view__ready-item"
+              >
+                <strong>{{ account.name }}</strong>
+                <div>
+                  <button
+                    type="button"
+                    :aria-label="`继续账号 ${account.name} 的计时`"
+                    @click="startAccount(account.id)"
+                  >
+                    继续
+                  </button>
+                  <button
+                    class="sect-mission-view__secondary"
+                    type="button"
+                    :aria-label="`完成账号 ${account.name}`"
+                    @click="completeAccount(account.id)"
+                  >
+                    完成
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <section
+            v-if="waitingAccounts.length > 0"
+            aria-labelledby="waiting-accounts-title"
+          >
+            <h3 id="waiting-accounts-title">
+              <Hourglass
+                :size="16"
+                aria-hidden="true"
+              />
+              等待中
+            </h3>
+            <ul>
+              <li
+                v-for="account in waitingAccounts"
+                :key="account.id"
+              >
+                <strong>{{ account.name }}</strong>
+                <span>{{ formatDuration(getWaitingRemaining(account)) }}</span>
+              </li>
+            </ul>
+          </section>
         </div>
-        <span>{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 可切回</span>
-      </header>
+      </section>
 
-      <p
-        v-if="waitingAccounts.length === 0 && readyAccounts.length === 0"
-        class="sect-mission-view__attention-empty"
-      >
-        当前没有等待中或可切回的账号。
-      </p>
+      <AccountBoard
+        class="sect-mission-view__accounts"
+        :now="now"
+        @add="openAddAccountForm"
+        @start="startAccount"
+        @pause="pauseAccount"
+        @wait="waitAccount"
+        @complete="completeAccount"
+        @reopen="reopenAccount"
+        @edit="openEditAccountForm"
+        @remove="requestRemoveAccount"
+      />
+    </div>
 
-      <div
-        v-else
-        class="sect-mission-view__attention-groups"
-      >
-        <section
-          v-if="readyAccounts.length > 0"
-          aria-labelledby="ready-accounts-title"
-        >
-          <h3 id="ready-accounts-title">
-            可以切回
-          </h3>
-          <ul>
-            <li
-              v-for="account in readyAccounts"
-              :key="account.id"
-              class="sect-mission-view__ready-item"
-            >
-              <strong>{{ account.name }}</strong>
-              <div>
-                <button
-                  type="button"
-                  :aria-label="`继续账号 ${account.name} 的计时`"
-                  @click="startAccount(account.id)"
-                >
-                  继续
-                </button>
-                <button
-                  class="sect-mission-view__secondary"
-                  type="button"
-                  :aria-label="`完成账号 ${account.name}`"
-                  @click="completeAccount(account.id)"
-                >
-                  完成
-                </button>
-              </div>
-            </li>
-          </ul>
-        </section>
-
-        <section
-          v-if="waitingAccounts.length > 0"
-          aria-labelledby="waiting-accounts-title"
-        >
-          <h3 id="waiting-accounts-title">
-            等待中
-          </h3>
-          <ul>
-            <li
-              v-for="account in waitingAccounts"
-              :key="account.id"
-            >
-              <strong>{{ account.name }}</strong>
-              <span>{{ formatDuration(getWaitingRemaining(account)) }}</span>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </section>
-
-    <AccountBoard
-      :now="now"
-      @add="openAddAccountForm"
-      @start="startAccount"
-      @pause="pauseAccount"
-      @wait="waitAccount"
-      @complete="completeAccount"
-      @reopen="reopenAccount"
-      @edit="openEditAccountForm"
-      @remove="requestRemoveAccount"
-    />
-
-    <ShopPanel />
+    <ShopPanel class="sect-mission-view__shops" />
 
     <AccountFormModal
       :open="accountFormOpen"
@@ -392,13 +420,20 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 <style scoped>
 .sect-mission-view {
   display: grid;
-  gap: clamp(2rem, 6vw, 3.5rem);
-  width: min(100%, 64rem);
+  grid-template-areas:
+    "header header"
+    "primary shops";
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  column-gap: clamp(1.25rem, 2.5vw, 2rem);
+  row-gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: start;
+  width: min(100%, 92rem);
   margin: 0 auto;
-  padding: clamp(2rem, 7vw, 5rem) 1.5rem;
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 3vw, 2.5rem);
 }
 
 .sect-mission-view__header {
+  grid-area: header;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -406,7 +441,19 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__header > div:first-child {
-  max-width: 42rem;
+  max-width: 45rem;
+}
+
+.sect-mission-view__primary {
+  display: grid;
+  grid-area: primary;
+  gap: clamp(1.75rem, 4vw, 3rem);
+  min-width: 0;
+}
+
+.sect-mission-view__shops {
+  grid-area: shops;
+  min-width: 0;
 }
 
 .sect-mission-view__eyebrow,
@@ -430,9 +477,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 .sect-mission-view h1 {
   margin-bottom: 1rem;
   color: var(--text);
-  font-size: clamp(2.25rem, 7vw, 4.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.055em;
+  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.05em;
 }
 
 .sect-mission-view__description {
@@ -446,6 +493,13 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   display: grid;
   flex: 0 0 auto;
   gap: 0.625rem;
+}
+
+.sect-mission-view__header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .sect-mission-view__secondary,
@@ -472,7 +526,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
 .sect-mission-view__attention {
   padding: 1.25rem;
-  background: var(--surface-soft);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 55%), transparent 62%),
+    var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
 }
@@ -485,6 +541,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__attention h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0;
   font-size: 1.375rem;
   letter-spacing: -0.025em;
@@ -517,6 +576,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__attention-groups h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin-bottom: 0.75rem;
   font-size: 0.9375rem;
 }
@@ -549,7 +611,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
 .sect-mission-view__attention-groups li > span {
   flex: 0 0 auto;
-  color: #8b5c20;
+  color: var(--warning);
   font-variant-numeric: tabular-nums;
 }
 
@@ -560,11 +622,35 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__ready-item button {
-  padding: 0.4rem 0.625rem;
+  padding: 0.5rem 0.625rem;
   font-size: 0.8125rem;
 }
 
-@media (max-width: 48rem) {
+@media (min-width: 68.75rem) {
+  .sect-mission-view__shops :deep(.shop-panel__header) {
+    display: grid;
+    align-items: start;
+  }
+
+  .sect-mission-view__shops :deep(.shop-panel__search) {
+    width: 100%;
+  }
+
+  .sect-mission-view__shops :deep(.shop-panel__categories) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 68.749rem) {
+  .sect-mission-view {
+    grid-template-areas:
+      "header"
+      "primary"
+      "shops";
+    grid-template-columns: minmax(0, 1fr);
+    width: min(100%, 72rem);
+  }
+
   .sect-mission-view__header {
     display: grid;
     align-items: start;
@@ -574,9 +660,24 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
     display: flex;
     flex-wrap: wrap;
   }
+}
+
+@media (max-width: 44.999rem) {
+  .sect-mission-view {
+    row-gap: 2rem;
+    padding: 2rem 1rem 3rem;
+  }
 
   .sect-mission-view__attention-groups {
     grid-template-columns: 1fr;
+  }
+
+  .sect-mission-view__header-actions button {
+    flex: 1 1 12rem;
+  }
+
+  .sect-mission-view :deep(.account-board__list) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -589,6 +690,14 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
   .sect-mission-view__attention > header > span {
     justify-self: start;
+  }
+
+  .sect-mission-view__attention {
+    padding: 1rem;
+  }
+
+  .sect-mission-view__ready-item > div {
+    flex-wrap: wrap;
   }
 }
 </style>

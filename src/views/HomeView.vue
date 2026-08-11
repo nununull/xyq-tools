@@ -36,12 +36,12 @@
           <span class="tool-card__index">01</span>
           <span class="tool-card__content">
             <strong>师门助手</strong>
-            <span>整理当日师门任务，留出更清爽的游戏时间。</span>
+            <span>多账号计时、高价值提醒和商会检索，一页处理。</span>
           </span>
           <span
             class="tool-card__action"
             aria-hidden="true"
-          >进入 →</span>
+          >打开工具 →</span>
         </RouterLink>
 
         <article class="tool-card tool-card--upcoming">
@@ -59,14 +59,26 @@
 
 <style scoped>
 .home-view {
-  width: min(100%, 58rem);
+  width: min(100%, 62rem);
   margin: 0 auto;
-  padding: clamp(2rem, 7vw, 5rem) 1.5rem;
+  padding: clamp(2rem, 7vw, 5.5rem) clamp(1.25rem, 4vw, 2.5rem);
 }
 
 .home-view__welcome {
-  max-width: 40rem;
-  padding-bottom: clamp(3rem, 8vw, 5rem);
+  position: relative;
+  max-width: 43rem;
+  padding-bottom: clamp(3rem, 8vw, 5.5rem);
+}
+
+.home-view__welcome::after {
+  position: absolute;
+  bottom: clamp(1.5rem, 4vw, 2.75rem);
+  left: 0;
+  width: 4rem;
+  height: 0.1875rem;
+  background: var(--mint-500);
+  border-radius: 999px;
+  content: "";
 }
 
 .home-view__eyebrow {
@@ -84,12 +96,12 @@ p {
 }
 
 h1 {
-  max-width: 32rem;
+  max-width: 35rem;
   margin-bottom: 1rem;
   color: var(--text);
-  font-size: clamp(2.25rem, 7vw, 4.5rem);
-  line-height: 1.08;
-  letter-spacing: -0.055em;
+  font-size: clamp(2.25rem, 6.5vw, 4.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.05em;
 }
 
 .home-view__intro {
@@ -101,7 +113,13 @@ h1 {
 }
 
 .home-view__section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
   margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .home-view__section-heading h2 {
@@ -121,8 +139,9 @@ h1 {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 1rem;
-  min-height: 11.5rem;
+  min-height: 12rem;
   padding: 1.5rem;
+  overflow: hidden;
   text-decoration: none;
   border: 1px solid var(--border);
   border-radius: 0.75rem;
@@ -154,12 +173,14 @@ h1 {
 
 .tool-card--available {
   position: relative;
-  background: var(--surface-soft);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 68%), transparent 52%),
+    var(--surface-soft);
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .tool-card--available:hover {
-  border-color: var(--mint-500);
+  border-color: var(--mint-700);
   box-shadow: 0 0.75rem 1.75rem rgb(37 54 48 / 9%);
   transform: translateY(-0.125rem);
 }
@@ -195,8 +216,27 @@ h1 {
 }
 
 @media (max-width: 40rem) {
+  .home-view {
+    padding-inline: 1rem;
+  }
+
+  .home-view__welcome {
+    max-width: 31rem;
+  }
+
   .home-view__tool-list {
     grid-template-columns: 1fr;
+  }
+
+  .tool-card {
+    min-height: 10.5rem;
+    padding: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-card--available:hover {
+    transform: none;
   }
 }
 </style>
