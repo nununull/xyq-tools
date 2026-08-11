@@ -17,6 +17,7 @@ export function consumeNewSaveFailure(result: SaveResult | null): result is Fail
 import { computed, ref, watch } from 'vue'
 import AccountBoard from '@/components/accounts/AccountBoard.vue'
 import AccountFormModal from '@/components/accounts/AccountFormModal.vue'
+import ShopPanel from '@/components/shops/ShopPanel.vue'
 import { useClock } from '@/composables/useClock'
 import {
   useNotifier,
@@ -376,6 +377,8 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
       @edit="openEditAccountForm"
       @remove="requestRemoveAccount"
     />
+
+    <ShopPanel />
 
     <AccountFormModal
       :open="accountFormOpen"
