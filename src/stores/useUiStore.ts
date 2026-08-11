@@ -30,6 +30,8 @@ export interface ToastMessage {
 
 const TOAST_DURATION_MS = 5_000
 const MAX_TOAST_COUNT = 3
+const DEFAULT_DANGEROUS_CONFIRM_TEXT = '执行危险操作'
+const GENERIC_CONFIRMATION_PATTERN = /^(确定|确认)(?:操作|一下|即可|好了|好)?[吗吧呀啊呢哦喔哟呦啦的哈]*$/u
 
 /** 管理全局确认请求和短暂操作反馈，确保交互结果可预测地收束。 */
 export const useUiStore = defineStore('ui', () => {
@@ -41,12 +43,9 @@ export const useUiStore = defineStore('ui', () => {
   /** 展示确认弹窗；新请求会先取消旧请求，避免调用方永久等待。 */
   function confirm(options: ConfirmOptions): Promise<boolean> {
     settleConfirmation(false)
-    if (options.tone === 'danger' && !hasSpecificChineseAction(options.confirmText)) {
-      return Promise.reject(new Error('危险确认必须提供具体中文动作文案。'))
-    }
 
     return new Promise<boolean>((resolve) => {
-      confirmation.value = options
+      confirmation.value = normalizeConfirmOptions(options)
       resolveConfirmation = resolve
     })
   }
@@ -102,10 +101,23 @@ export const useUiStore = defineStore('ui', () => {
     settleConfirmation(false)
   }
 
-  /** 判断危险操作文案是否避开“确定”等泛化表达，便于用户识别真实后果。 */
+  /** 为危险确认降级泛化文案，避免按钮以“确定”等词掩盖真实风险。 */
+  function normalizeConfirmOptions(options: ConfirmOptions): ConfirmOptions {
+    if (options.tone !== 'danger' || hasSpecificChineseAction(options.confirmText)) return options
+    return {
+      ...options,
+      confirmText: DEFAULT_DANGEROUS_CONFIRM_TEXT,
+    }
+  }
+
+  /** 判断危险操作文案是否包含具体中文动作，而不是确认语气或泛化操作词。 */
   function hasSpecificChineseAction(label: string): boolean {
-    const action = label.trim()
-    return action.length >= 2 && action !== '确定' && action !== '确认' && /\p{Script=Han}/u.test(action)
+    const action = label.replace(/[\s\p{P}]/gu, '')
+    return (
+      action.length >= 2 &&
+      /\p{Script=Han}/u.test(action) &&
+      !GENERIC_CONFIRMATION_PATTERN.test(action)
+    )
   }
 
   onScopeDispose(disposeUiState)

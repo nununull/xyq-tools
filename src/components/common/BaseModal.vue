@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* global HTMLDialogElement, HTMLElement, MouseEvent, crypto, document */
+/* global Event, HTMLDialogElement, HTMLElement, MouseEvent, crypto, document */
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -21,7 +21,6 @@ const dialog = ref<HTMLDialogElement | null>(null)
 const titleId = `modal-title-${crypto.randomUUID()}`
 const descriptionId = `modal-description-${crypto.randomUUID()}`
 let triggerElement: HTMLElement | null = null
-let closesFromProp = false
 
 /** 将焦点放在弹窗内第一个可交互元素，保证键盘用户立即能操作。 */
 function focusFirstInteractiveElement(): void {
@@ -43,14 +42,12 @@ async function showDialog(): Promise<void> {
   focusFirstInteractiveElement()
 }
 
-/** 由外部状态关闭原生对话框，不向父级重复发出关闭请求。 */
+/** 由外部状态关闭原生对话框；关闭事件只负责焦点收尾，不再反向通知父级。 */
 function hideDialog(): void {
   const element = dialog.value
   if (element === null || !element.open) return
 
-  closesFromProp = true
   element.close()
-  closesFromProp = false
 }
 
 /** 原生对话框关闭后恢复之前的触发元素焦点。 */
@@ -61,15 +58,26 @@ function restoreTriggerFocus(): void {
   triggerElement = null
 }
 
-/** 处理原生关闭事件；仅用户触发的关闭才通知父组件更新状态。 */
+/** 原生关闭事件仅恢复焦点；新弹窗已开启时保留新一轮交互上下文。 */
 function handleClose(): void {
+  if (props.open) return
   restoreTriggerFocus()
-  if (!closesFromProp) emit('close')
+}
+
+/** 请求父组件关闭弹窗，受控状态变更会负责调用原生 close。 */
+function requestClose(): void {
+  emit('close')
+}
+
+/** 拦截 Escape 的默认关闭流程，避免原生 close 事件参与状态控制。 */
+function handleCancel(event: Event): void {
+  event.preventDefault()
+  requestClose()
 }
 
 /** 点击遮罩时请求父组件关闭，内容区域点击不受影响。 */
 function handleBackdropClick(event: MouseEvent): void {
-  if (event.target === event.currentTarget) emit('close')
+  if (event.target === event.currentTarget) requestClose()
 }
 
 watch(
@@ -93,6 +101,7 @@ onBeforeUnmount(hideDialog)
     class="base-modal"
     :aria-labelledby="titleId"
     :aria-describedby="description === undefined ? undefined : descriptionId"
+    @cancel="handleCancel"
     @close="handleClose"
     @click="handleBackdropClick"
   >
