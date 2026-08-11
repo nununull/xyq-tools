@@ -88,7 +88,6 @@ export function useNotifier(): {
     try {
       const notification = new Notification('账号可切回', {
         body: `${accountName} 的高价值等待已结束。`,
-        tag: `sect-mission-ready-${accountName}`,
       })
       notification.onclick = () => {
         window.focus()

@@ -1,3 +1,18 @@
+<script lang="ts">
+import type { SaveResult } from '@/services/persistence'
+
+type FailedSaveResult = Extract<SaveResult, { ok: false }>
+
+const consumedSaveFailures = new WeakSet<FailedSaveResult>()
+
+/** 仅让新的保存失败结果对象通过一次，避免视图重挂载重复反馈旧失败。 */
+export function consumeNewSaveFailure(result: SaveResult | null): result is FailedSaveResult {
+  if (result === null || result.ok || consumedSaveFailures.has(result)) return false
+  consumedSaveFailures.add(result)
+  return true
+}
+</script>
+
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import AccountBoard from '@/components/accounts/AccountBoard.vue'
@@ -7,7 +22,6 @@ import {
   useNotifier,
   type NotificationPermissionResult,
 } from '@/composables/useNotifier'
-import type { SaveResult } from '@/services/persistence'
 import { useToolStore } from '@/stores/useToolStore'
 import { useUiStore } from '@/stores/useUiStore'
 import type { Account, AccountDraft } from '@/types/domain'
@@ -230,7 +244,7 @@ function showBootWarning(): void {
 
 /** 将最近一次持久化失败转为危险 Toast。 */
 function showSaveFailure(result: SaveResult | null): void {
-  if (result !== null && !result.ok) uiStore.toast(result.message, 'danger')
+  if (consumeNewSaveFailure(result)) uiStore.toast(result.message, 'danger')
 }
 
 showBootWarning()
