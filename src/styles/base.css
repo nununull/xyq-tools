@@ -1,0 +1,114 @@
+:root {
+  --mint-500: #70ad99;
+  --mint-700: #477d6d;
+  --surface: #f7f4ed;
+  --surface-soft: #edf1e9;
+  --text: #253630;
+  --text-muted: #63716a;
+  --border: #d4ddd5;
+  --danger: #b85b54;
+  color: var(--text);
+  background: var(--surface);
+  font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--surface);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--surface);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  padding: 0.625rem 1rem;
+  color: var(--surface);
+  cursor: pointer;
+  background: var(--mint-700);
+  border: 1px solid var(--mint-700);
+  border-radius: 0.5rem;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+button:hover {
+  background: var(--mint-500);
+  border-color: var(--mint-500);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--mint-500) 75%, transparent);
+  outline-offset: 3px;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  padding: 2rem;
+  place-items: center;
+}
+
+.app-shell__panel {
+  width: min(100%, 32rem);
+  padding: 2.5rem;
+  text-align: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 1rem 2.5rem rgb(37 54 48 / 8%);
+}
+
+.app-shell__eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--mint-700);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.app-shell h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3rem);
+  letter-spacing: -0.04em;
+}
+
+.app-shell__message {
+  margin: 1rem 0 0;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
