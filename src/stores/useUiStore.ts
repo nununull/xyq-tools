@@ -11,13 +11,13 @@ interface ConfirmOptionsBase {
 
 interface StandardConfirmOptions extends ConfirmOptionsBase {
   tone?: 'default'
-  confirmText?: string
+  confirmLabel?: string
 }
 
 interface DangerousConfirmOptions extends ConfirmOptionsBase {
   tone: 'danger'
   /** 危险操作必须传入具体中文动作，例如“删除账号”或“清空今日记录”。 */
-  confirmText: string
+  confirmLabel: string
 }
 
 export type ConfirmOptions = StandardConfirmOptions | DangerousConfirmOptions
@@ -30,8 +30,7 @@ export interface ToastMessage {
 
 const TOAST_DURATION_MS = 5_000
 const MAX_TOAST_COUNT = 3
-const DEFAULT_DANGEROUS_CONFIRM_TEXT = '执行危险操作'
-const GENERIC_CONFIRMATION_PATTERN = /^(确定|确认)(?:操作|一下|即可|好了|好)?[吗吧呀啊呢哦喔哟呦啦的哈]*$/u
+const DESTRUCTIVE_ACTION_PATTERN = /删除|清空|重置|移除|放弃|注销|解除|覆盖|丢弃|终止|停用|撤销/u
 
 /** 管理全局确认请求和短暂操作反馈，确保交互结果可预测地收束。 */
 export const useUiStore = defineStore('ui', () => {
@@ -43,9 +42,12 @@ export const useUiStore = defineStore('ui', () => {
   /** 展示确认弹窗；新请求会先取消旧请求，避免调用方永久等待。 */
   function confirm(options: ConfirmOptions): Promise<boolean> {
     settleConfirmation(false)
+    if (options.tone === 'danger' && !hasDestructiveAction(options.confirmLabel)) {
+      return Promise.reject(new Error('危险确认按钮必须包含明确动作，例如“删除账号”或“清空记录”。'))
+    }
 
     return new Promise<boolean>((resolve) => {
-      confirmation.value = normalizeConfirmOptions(options)
+      confirmation.value = options
       resolveConfirmation = resolve
     })
   }
@@ -101,23 +103,10 @@ export const useUiStore = defineStore('ui', () => {
     settleConfirmation(false)
   }
 
-  /** 为危险确认降级泛化文案，避免按钮以“确定”等词掩盖真实风险。 */
-  function normalizeConfirmOptions(options: ConfirmOptions): ConfirmOptions {
-    if (options.tone !== 'danger' || hasSpecificChineseAction(options.confirmText)) return options
-    return {
-      ...options,
-      confirmText: DEFAULT_DANGEROUS_CONFIRM_TEXT,
-    }
-  }
-
-  /** 判断危险操作文案是否包含具体中文动作，而不是确认语气或泛化操作词。 */
-  function hasSpecificChineseAction(label: string): boolean {
-    const action = label.replace(/[\s\p{P}]/gu, '')
-    return (
-      action.length >= 2 &&
-      /\p{Script=Han}/u.test(action) &&
-      !GENERIC_CONFIRMATION_PATTERN.test(action)
-    )
+  /** 判断危险按钮文案是否明确包含会改变或损失数据的动作。 */
+  function hasDestructiveAction(label: string): boolean {
+    const action = label.replace(/[\s\p{P}\p{S}]/gu, '')
+    return DESTRUCTIVE_ACTION_PATTERN.test(action)
   }
 
   onScopeDispose(disposeUiState)

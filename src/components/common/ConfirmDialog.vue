@@ -6,7 +6,7 @@ import BaseModal from './BaseModal.vue'
 const uiStore = useUiStore()
 const confirmation = computed(() => uiStore.confirmation)
 const isDangerous = computed(() => confirmation.value?.tone === 'danger')
-const confirmLabel = computed(() => confirmation.value?.confirmText ?? '确定')
+const confirmLabel = computed(() => confirmation.value?.confirmLabel ?? '确认')
 const cancelLabel = computed(() => confirmation.value?.cancelText ?? '取消')
 
 /** 拒绝当前请求，关闭、取消和替换请求均返回 false。 */
