@@ -1,0 +1,17 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+export const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: () => import('@/views/HomeView.vue'),
+    },
+    {
+      path: '/sect-mission',
+      name: 'sect-mission',
+      component: () => import('@/views/SectMissionView.vue'),
+    },
+  ],
+})
