@@ -180,12 +180,10 @@ export const useToolStore = defineStore('tool', () => {
     if (checkpoints.length > 0) persistState()
   }
 
-  /** 按实时有效耗时和账号顺序返回当前推荐账号，不修改状态。 */
+  /** 从未开始和已暂停账号中按有效耗时与账号顺序返回推荐项。 */
   function getRecommendedAccount(now: number): Account | null {
     if (!isValidNow(now)) return null
-    const candidates = accounts.value.filter(
-      ({ status }) => status !== 'completed' && status !== 'waiting',
-    )
+    const candidates = accounts.value.filter(({ status }) => ['idle', 'paused'].includes(status))
     candidates.sort((left, right) => {
       const elapsedDifference = getEffectiveElapsedMs(left, now) - getEffectiveElapsedMs(right, now)
       return elapsedDifference || left.order - right.order
