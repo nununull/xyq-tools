@@ -28,7 +28,14 @@ npm run build
 
 将 `npm run build` 生成的 `dist/` 完整上传到任意静态托管服务即可。项目使用 Hash 路由，师门页地址形如 `/#/sect-mission`，直接刷新不会要求服务器配置业务路由回退。
 
-默认构建以站点根目录 `/` 为部署位置。如果需要放在子目录，应在构建时为 Vite 配置对应的 `base`，并确认资源路径能够从该子目录正常访问。
+仓库已经配置 GitHub Pages 自动部署。推送到 `main` 后，GitHub Actions 会执行类型检查、Lint 和生产构建，再发布 `dist/`：
+
+- 站点地址：<https://nununull.github.io/xyq-tools/>
+- 发布记录：<https://github.com/nununull/xyq-tools/actions/workflows/deploy-pages.yml>
+
+首次发布前，需要在仓库 `Settings → Pages → Build and deployment` 中把 `Source` 设为 `GitHub Actions`；以后推送 `main` 会自动重新发布。
+
+本地构建默认以站点根目录 `/` 为部署位置；GitHub Actions 构建时自动使用 `/xyq-tools/` 子路径，避免静态资源在项目站点中出现 404。
 
 ## 师门助手怎么用
 

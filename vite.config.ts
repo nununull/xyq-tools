@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS === 'true' ? '/xyq-tools/' : '/',
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
 })
