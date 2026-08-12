@@ -14,32 +14,37 @@ export function consumeNewSaveFailure(result: SaveResult | null): result is Fail
 </script>
 
 <script setup lang="ts">
-import { Bell, BellRing, Hourglass, RotateCcw } from 'lucide-vue-next'
+import { BarChart3, Bell, BellRing, Hourglass, RotateCcw } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import AccountBoard from '@/components/accounts/AccountBoard.vue'
 import AccountFormModal from '@/components/accounts/AccountFormModal.vue'
 import ShopPanel from '@/components/shops/ShopPanel.vue'
+import DailyStatisticsModal from '@/components/statistics/DailyStatisticsModal.vue'
 import { useClock } from '@/composables/useClock'
 import {
   useNotifier,
   type NotificationPermissionResult,
 } from '@/composables/useNotifier'
 import { useToolStore } from '@/stores/useToolStore'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { usePersistenceStore } from '@/stores/usePersistenceStore'
 import { useUiStore } from '@/stores/useUiStore'
 import type { Account, AccountDraft } from '@/types/domain'
 
 const toolStore = useToolStore()
+const authStore = useAuthStore()
 const persistenceStore = usePersistenceStore()
 const uiStore = useUiStore()
 const { notifyReady, requestPermission, restoreTitle } = useNotifier()
 const accountFormOpen = ref(false)
+const statisticsOpen = ref(false)
 const editingAccountId = ref<string | null>(null)
 
 const editingAccount = computed<Account | undefined>(() =>
   toolStore.accounts.find(({ id }) => id === editingAccountId.value),
 )
 const editingDisabled = computed(() => !persistenceStore.initialized || persistenceStore.syncStatus === 'error' && persistenceStore.syncMessage.startsWith('数据初始化失败'))
+const statisticsUserId = computed(() => authStore.user?.id ?? null)
 const waitingAccounts = computed(() =>
   toolStore.accounts
     .filter(({ status }) => status === 'waiting')
@@ -81,6 +86,15 @@ function getWaitingRemaining(account: Account): number {
 /** 返回可展示的未知异常文本。 */
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+/** 登录用户打开云端统计，游客收到明确限制提示。 */
+function openStatistics(): void {
+  if (statisticsUserId.value === null) {
+    uiStore.toast('每日统计只保存云端数据，先登录账号。', 'warning')
+    return
+  }
+  statisticsOpen.value = true
 }
 
 /** 没有剩余就绪账号时恢复普通页面标题。 */
@@ -284,6 +298,18 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
           <button
             class="sect-mission-view__secondary"
             type="button"
+            aria-label="查看每日数据明细与汇总统计"
+            @click="openStatistics"
+          >
+            <BarChart3
+              :size="17"
+              aria-hidden="true"
+            />
+            <span>数据统计</span>
+          </button>
+          <button
+            class="sect-mission-view__secondary"
+            type="button"
             aria-label="启用账号到期系统通知"
             @click="enableSystemNotifications"
           >
@@ -427,6 +453,11 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
         :account="editingAccount"
         @save="saveAccount"
         @close="closeAccountForm"
+      />
+      <DailyStatisticsModal
+        :open="statisticsOpen"
+        :user-id="statisticsUserId"
+        @close="statisticsOpen = false"
       />
     </fieldset>
   </div>

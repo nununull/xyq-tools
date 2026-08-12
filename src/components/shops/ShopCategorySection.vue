@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import ShopCard from '@/components/shops/ShopCard.vue'
 import ShopNumberPill from '@/components/shops/ShopNumberPill.vue'
 import type { Shop, ShopCategory } from '@/types/domain'
 
@@ -104,8 +103,7 @@ watch(
     <VueDraggable
       v-else
       v-model="sortableShops"
-      class="shop-category__list"
-      :class="{ 'shop-category__list--pills': category !== 'summon' }"
+      class="shop-category__list shop-category__list--pills"
       handle=".shop-card__drag-handle"
       ghost-class="shop-category__ghost"
       :animation="160"
@@ -113,31 +111,18 @@ watch(
       @start="startDragging"
       @end="finishDragging"
     >
-      <template v-if="category === 'summon'">
-        <ShopCard
-          v-for="(shop, index) in sortableShops"
-          :key="shop.id"
-          :shop="shop"
-          :can-move-up="index > 0"
-          :can-move-down="index < sortableShops.length - 1"
-          @edit="emit('edit', $event)"
-          @remove="emit('remove', $event)"
-          @move="moveShop"
-        />
-      </template>
-      <template v-else>
-        <ShopNumberPill
-          v-for="(shop, index) in sortableShops"
-          :key="shop.id"
-          :shop="shop"
-          :category-title="title"
-          :can-move-up="index > 0"
-          :can-move-down="index < sortableShops.length - 1"
-          @edit="emit('edit', $event)"
-          @remove="emit('remove', $event)"
-          @move="moveShop"
-        />
-      </template>
+      <ShopNumberPill
+        v-for="(shop, index) in sortableShops"
+        :key="shop.id"
+        :shop="shop"
+        :category-title="title"
+        :show-name="category === 'summon'"
+        :can-move-up="index > 0"
+        :can-move-down="index < sortableShops.length - 1"
+        @edit="emit('edit', $event)"
+        @remove="emit('remove', $event)"
+        @move="moveShop"
+      />
     </VueDraggable>
   </section>
 </template>
