@@ -63,7 +63,7 @@ export function loadPersistedState(): LoadResult {
   }
 
   try {
-    const parsed: unknown = JSON.parse(raw)
+    const parsed: unknown = migratePersistedState(JSON.parse(raw))
     if (!isPersistedState(parsed)) {
       throw new Error('数据结构或版本不受支持')
     }
@@ -78,6 +78,21 @@ export function loadPersistedState(): LoadResult {
         : `本地数据已损坏，备份成功前将禁止覆盖原数据：${getErrorMessage(error)}；${backupResult.message}`,
       recovery: backupResult.ok ? null : recovery,
     }
+  }
+}
+
+/** 为旧版账号补齐当日高价值次数，再交给严格校验流程处理。 */
+function migratePersistedState(value: unknown): unknown {
+  if (!isRecord(value) || value.version !== PERSISTENCE_VERSION || !Array.isArray(value.accounts)) {
+    return value
+  }
+
+  return {
+    ...value,
+    accounts: value.accounts.map((account) => {
+      if (!isRecord(account) || 'highValueCount' in account) return account
+      return { ...account, highValueCount: 0 }
+    }),
   }
 }
 
@@ -122,6 +137,7 @@ function isAccount(value: unknown): value is Account {
   }
   if (!isOrder(value.order) || !isAccountStatus(value.status)) return false
   if (!isNonNegativeFiniteNumber(value.accumulatedMs)) return false
+  if (!isOrder(value.highValueCount)) return false
 
   const startedAtIsValid = value.startedAt === null || isNonNegativeFiniteNumber(value.startedAt)
   const waitingUntilIsValid = value.waitingUntil === null || isNonNegativeFiniteNumber(value.waitingUntil)

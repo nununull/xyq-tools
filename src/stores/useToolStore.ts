@@ -38,6 +38,7 @@ export const useToolStore = defineStore('tool', () => {
       order: accounts.value.length,
       status: 'idle',
       accumulatedMs: 0,
+      highValueCount: 0,
       startedAt: null,
       waitingUntil: null,
     }
@@ -100,6 +101,7 @@ export const useToolStore = defineStore('tool', () => {
     if (!settleRunningAccount(account, now)) return false
     account.status = 'waiting'
     account.waitingUntil = waitingUntil
+    account.highValueCount += 1
     return true
   }
 
@@ -156,6 +158,7 @@ export const useToolStore = defineStore('tool', () => {
     for (const account of accounts.value) {
       account.status = 'idle'
       account.accumulatedMs = 0
+      account.highValueCount = 0
       account.startedAt = null
       account.waitingUntil = null
     }

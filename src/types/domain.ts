@@ -7,6 +7,7 @@ export interface Account {
   order: number
   status: AccountStatus
   accumulatedMs: number
+  highValueCount: number
   startedAt: number | null
   waitingUntil: number | null
 }

@@ -150,6 +150,10 @@ function handleSortKey(event: KeyboardEvent): void {
           {{ formatDuration(effectiveElapsedMs) }}
         </strong>
       </div>
+      <div class="account-card__high-value-count">
+        <span>今日高价值</span>
+        <strong>{{ account.highValueCount }} 次</strong>
+      </div>
       <div
         v-if="account.status === 'waiting'"
         class="account-card__waiting"
@@ -374,6 +378,10 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .account-card__waiting strong {
   color: #8b5c20;
+}
+
+.account-card__high-value-count strong {
+  color: #81591f;
 }
 
 .account-card__footer {
