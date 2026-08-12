@@ -421,21 +421,21 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 .sect-mission-view {
   display: grid;
   grid-template-areas:
-    "header header"
-    "primary shops";
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
-  column-gap: clamp(1.25rem, 2.5vw, 2rem);
-  row-gap: clamp(1.75rem, 4vw, 3rem);
+    "header"
+    "primary"
+    "shops";
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 1rem;
   align-items: start;
-  width: min(100%, 92rem);
+  width: min(100%, 96rem);
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(1rem, 2vw, 1.75rem) clamp(1rem, 2.5vw, 2rem) 2rem;
 }
 
 .sect-mission-view__header {
   grid-area: header;
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 2rem;
 }
@@ -447,7 +447,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 .sect-mission-view__primary {
   display: grid;
   grid-area: primary;
-  gap: clamp(1.75rem, 4vw, 3rem);
+  gap: 1rem;
   min-width: 0;
 }
 
@@ -467,7 +467,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
 .sect-mission-view__eyebrow,
 .sect-mission-view__section-label {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
   color: var(--mint-700);
   font-size: 0.8125rem;
   font-weight: 700;
@@ -475,9 +475,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view h1 {
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
   color: var(--text);
-  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
   line-height: 1.1;
   letter-spacing: -0.05em;
 }
@@ -486,11 +486,12 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   max-width: 37rem;
   margin-bottom: 0;
   color: var(--text-muted);
-  line-height: 1.75;
+  font-size: 0.8125rem;
+  line-height: 1.45;
 }
 
 .sect-mission-view__header-actions {
-  display: grid;
+  display: flex;
   flex: 0 0 auto;
   gap: 0.625rem;
 }
@@ -500,6 +501,9 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.125rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
 }
 
 .sect-mission-view__secondary,
@@ -525,7 +529,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__attention {
-  padding: 1.25rem;
+  padding: 0.75rem;
   background:
     linear-gradient(135deg, rgb(255 255 255 / 55%), transparent 62%),
     var(--surface-soft);
@@ -545,7 +549,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0;
-  font-size: 1.375rem;
+  font-size: 1rem;
   letter-spacing: -0.025em;
 }
 
@@ -556,20 +560,20 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__attention-empty {
-  margin: 1rem 0 0;
+  margin: 0.375rem 0 0;
   color: var(--text-muted);
 }
 
 .sect-mission-view__attention-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.25rem;
+  gap: 0.625rem;
+  margin-top: 0.625rem;
 }
 
 .sect-mission-view__attention-groups section {
   min-width: 0;
-  padding: 1rem;
+  padding: 0.625rem;
   background: color-mix(in srgb, var(--surface) 82%, transparent);
   border: 1px solid var(--border);
   border-radius: 0.625rem;
@@ -579,13 +583,13 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.375rem;
   font-size: 0.9375rem;
 }
 
 .sect-mission-view__attention-groups ul {
   display: grid;
-  gap: 0.625rem;
+  gap: 0.375rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -600,7 +604,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 }
 
 .sect-mission-view__attention-groups li + li {
-  padding-top: 0.625rem;
+  padding-top: 0.375rem;
   border-top: 1px solid var(--border);
 }
 
@@ -626,31 +630,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   font-size: 0.8125rem;
 }
 
-@media (min-width: 68.75rem) {
-  .sect-mission-view__shops :deep(.shop-panel__header) {
-    display: grid;
-    align-items: start;
-  }
-
-  .sect-mission-view__shops :deep(.shop-panel__search) {
-    width: 100%;
-  }
-
-  .sect-mission-view__shops :deep(.shop-panel__categories) {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 68.749rem) {
-  .sect-mission-view {
-    grid-template-areas:
-      "header"
-      "primary"
-      "shops";
-    grid-template-columns: minmax(0, 1fr);
-    width: min(100%, 72rem);
-  }
-
   .sect-mission-view__header {
     display: grid;
     align-items: start;
@@ -664,8 +644,8 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
 @media (max-width: 44.999rem) {
   .sect-mission-view {
-    row-gap: 2rem;
-    padding: 2rem 1rem 3rem;
+    row-gap: 1rem;
+    padding: 1rem 0.75rem 2rem;
   }
 
   .sect-mission-view__attention-groups {
