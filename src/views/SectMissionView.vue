@@ -25,10 +25,12 @@ import {
   type NotificationPermissionResult,
 } from '@/composables/useNotifier'
 import { useToolStore } from '@/stores/useToolStore'
+import { usePersistenceStore } from '@/stores/usePersistenceStore'
 import { useUiStore } from '@/stores/useUiStore'
 import type { Account, AccountDraft } from '@/types/domain'
 
 const toolStore = useToolStore()
+const persistenceStore = usePersistenceStore()
 const uiStore = useUiStore()
 const { notifyReady, requestPermission, restoreTitle } = useNotifier()
 const accountFormOpen = ref(false)
@@ -37,6 +39,7 @@ const editingAccountId = ref<string | null>(null)
 const editingAccount = computed<Account | undefined>(() =>
   toolStore.accounts.find(({ id }) => id === editingAccountId.value),
 )
+const editingDisabled = computed(() => !persistenceStore.initialized || persistenceStore.syncStatus === 'error' && persistenceStore.syncMessage.startsWith('数据初始化失败'))
 const waitingAccounts = computed(() =>
   toolStore.accounts
     .filter(({ status }) => status === 'waiting')
@@ -256,164 +259,176 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 
 <template>
   <div class="sect-mission-view">
-    <header class="sect-mission-view__header">
-      <div>
-        <p class="sect-mission-view__eyebrow">
-          每日工具
-        </p>
-        <h1>师门助手</h1>
-        <p class="sect-mission-view__description">
-          多账号独立计时、五分钟高价值等待和今日完成进度，都在一个页面里处理。
-        </p>
-      </div>
-      <div class="sect-mission-view__header-actions">
-        <button
-          class="sect-mission-view__secondary"
-          type="button"
-          aria-label="启用账号到期系统通知"
-          @click="enableSystemNotifications"
-        >
-          <Bell
-            :size="17"
-            aria-hidden="true"
-          />
-          <span>启用系统通知</span>
-        </button>
-        <button
-          class="sect-mission-view__danger"
-          type="button"
-          aria-label="重置所有账号的今日进度"
-          @click="requestDailyReset"
-        >
-          <RotateCcw
-            :size="17"
-            aria-hidden="true"
-          />
-          <span>重置今日进度</span>
-        </button>
-      </div>
-    </header>
-
-    <div class="sect-mission-view__primary">
-      <section
-        class="sect-mission-view__attention"
-        aria-labelledby="attention-title"
-      >
-        <header>
-          <div>
-            <p class="sect-mission-view__section-label">
-              到期中心
-            </p>
-            <h2 id="attention-title">
-              <BellRing
-                :size="20"
-                aria-hidden="true"
-              />
-              高价值提醒
-            </h2>
-          </div>
-          <span
-            role="status"
-            aria-live="polite"
-          >{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 可切回</span>
-        </header>
-
-        <p
-          v-if="waitingAccounts.length === 0 && readyAccounts.length === 0"
-          class="sect-mission-view__attention-empty"
-        >
-          当前没有等待中或可切回的账号。
-        </p>
-
-        <div
-          v-else
-          class="sect-mission-view__attention-groups"
-        >
-          <section
-            v-if="readyAccounts.length > 0"
-            aria-labelledby="ready-accounts-title"
-          >
-            <h3 id="ready-accounts-title">
-              <BellRing
-                :size="16"
-                aria-hidden="true"
-              />
-              可以切回
-            </h3>
-            <ul>
-              <li
-                v-for="account in readyAccounts"
-                :key="account.id"
-                class="sect-mission-view__ready-item"
-              >
-                <strong>{{ account.name }}</strong>
-                <div>
-                  <button
-                    type="button"
-                    :aria-label="`继续账号 ${account.name} 的计时`"
-                    @click="startAccount(account.id)"
-                  >
-                    继续
-                  </button>
-                  <button
-                    class="sect-mission-view__secondary"
-                    type="button"
-                    :aria-label="`完成账号 ${account.name}`"
-                    @click="completeAccount(account.id)"
-                  >
-                    完成
-                  </button>
-                </div>
-              </li>
-            </ul>
-          </section>
-
-          <section
-            v-if="waitingAccounts.length > 0"
-            aria-labelledby="waiting-accounts-title"
-          >
-            <h3 id="waiting-accounts-title">
-              <Hourglass
-                :size="16"
-                aria-hidden="true"
-              />
-              等待中
-            </h3>
-            <ul>
-              <li
-                v-for="account in waitingAccounts"
-                :key="account.id"
-              >
-                <strong>{{ account.name }}</strong>
-                <span>{{ formatDuration(getWaitingRemaining(account)) }}</span>
-              </li>
-            </ul>
-          </section>
+    <p
+      v-if="editingDisabled"
+      class="sect-mission-view__gate"
+      role="alert"
+    >
+      {{ persistenceStore.syncMessage }}。当前禁止编辑，刷新页面重试。
+    </p>
+    <fieldset
+      class="sect-mission-view__workspace"
+      :disabled="editingDisabled"
+    >
+      <header class="sect-mission-view__header">
+        <div>
+          <p class="sect-mission-view__eyebrow">
+            每日工具
+          </p>
+          <h1>师门助手</h1>
+          <p class="sect-mission-view__description">
+            多账号独立计时、五分钟高价值等待和今日完成进度，都在一个页面里处理。
+          </p>
         </div>
-      </section>
+        <div class="sect-mission-view__header-actions">
+          <button
+            class="sect-mission-view__secondary"
+            type="button"
+            aria-label="启用账号到期系统通知"
+            @click="enableSystemNotifications"
+          >
+            <Bell
+              :size="17"
+              aria-hidden="true"
+            />
+            <span>启用系统通知</span>
+          </button>
+          <button
+            class="sect-mission-view__danger"
+            type="button"
+            aria-label="重置所有账号的今日进度"
+            @click="requestDailyReset"
+          >
+            <RotateCcw
+              :size="17"
+              aria-hidden="true"
+            />
+            <span>重置今日进度</span>
+          </button>
+        </div>
+      </header>
 
-      <AccountBoard
-        class="sect-mission-view__accounts"
-        :now="now"
-        @add="openAddAccountForm"
-        @start="startAccount"
-        @pause="pauseAccount"
-        @wait="waitAccount"
-        @complete="completeAccount"
-        @reopen="reopenAccount"
-        @edit="openEditAccountForm"
-        @remove="requestRemoveAccount"
+      <div class="sect-mission-view__primary">
+        <section
+          class="sect-mission-view__attention"
+          aria-labelledby="attention-title"
+        >
+          <header>
+            <div>
+              <p class="sect-mission-view__section-label">
+                到期中心
+              </p>
+              <h2 id="attention-title">
+                <BellRing
+                  :size="20"
+                  aria-hidden="true"
+                />
+                高价值提醒
+              </h2>
+            </div>
+            <span
+              role="status"
+              aria-live="polite"
+            >{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 可切回</span>
+          </header>
+
+          <p
+            v-if="waitingAccounts.length === 0 && readyAccounts.length === 0"
+            class="sect-mission-view__attention-empty"
+          >
+            当前没有等待中或可切回的账号。
+          </p>
+
+          <div
+            v-else
+            class="sect-mission-view__attention-groups"
+          >
+            <section
+              v-if="readyAccounts.length > 0"
+              aria-labelledby="ready-accounts-title"
+            >
+              <h3 id="ready-accounts-title">
+                <BellRing
+                  :size="16"
+                  aria-hidden="true"
+                />
+                可以切回
+              </h3>
+              <ul>
+                <li
+                  v-for="account in readyAccounts"
+                  :key="account.id"
+                  class="sect-mission-view__ready-item"
+                >
+                  <strong>{{ account.name }}</strong>
+                  <div>
+                    <button
+                      type="button"
+                      :aria-label="`继续账号 ${account.name} 的计时`"
+                      @click="startAccount(account.id)"
+                    >
+                      继续
+                    </button>
+                    <button
+                      class="sect-mission-view__secondary"
+                      type="button"
+                      :aria-label="`完成账号 ${account.name}`"
+                      @click="completeAccount(account.id)"
+                    >
+                      完成
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </section>
+
+            <section
+              v-if="waitingAccounts.length > 0"
+              aria-labelledby="waiting-accounts-title"
+            >
+              <h3 id="waiting-accounts-title">
+                <Hourglass
+                  :size="16"
+                  aria-hidden="true"
+                />
+                等待中
+              </h3>
+              <ul>
+                <li
+                  v-for="account in waitingAccounts"
+                  :key="account.id"
+                >
+                  <strong>{{ account.name }}</strong>
+                  <span>{{ formatDuration(getWaitingRemaining(account)) }}</span>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </section>
+
+        <AccountBoard
+          class="sect-mission-view__accounts"
+          :now="now"
+          @add="openAddAccountForm"
+          @start="startAccount"
+          @pause="pauseAccount"
+          @wait="waitAccount"
+          @complete="completeAccount"
+          @reopen="reopenAccount"
+          @edit="openEditAccountForm"
+          @remove="requestRemoveAccount"
+        />
+      </div>
+
+      <ShopPanel class="sect-mission-view__shops" />
+
+      <AccountFormModal
+        :open="accountFormOpen"
+        :account="editingAccount"
+        @save="saveAccount"
+        @close="closeAccountForm"
       />
-    </div>
-
-    <ShopPanel class="sect-mission-view__shops" />
-
-    <AccountFormModal
-      :open="accountFormOpen"
-      :account="editingAccount"
-      @save="saveAccount"
-      @close="closeAccountForm"
-    />
+    </fieldset>
   </div>
 </template>
 
@@ -431,6 +446,8 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
   margin: 0 auto;
   padding: clamp(1rem, 2vw, 1.75rem) clamp(1rem, 2.5vw, 2rem) 2rem;
 }
+.sect-mission-view__workspace { display: contents; min-width: 0; margin: 0; padding: 0; border: 0; }
+.sect-mission-view__gate { padding: .75rem 1rem; color: var(--danger); background: var(--surface-soft); border: 1px solid var(--danger); border-radius: .6rem; }
 
 .sect-mission-view__header {
   grid-area: header;

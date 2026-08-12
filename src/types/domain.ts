@@ -10,6 +10,7 @@ export interface Account {
   highValueCount: number
   startedAt: number | null
   waitingUntil: number | null
+  completedAt: number | null
 }
 
 export type AccountDraft = Pick<Account, 'name' | 'note'>

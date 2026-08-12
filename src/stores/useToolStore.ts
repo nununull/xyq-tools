@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { getLocalDateKey } from '@/services/localDate'
 import {
-  loadPersistedState,
   PERSISTENCE_VERSION,
-  savePersistedState,
   type SaveResult,
 } from '@/services/persistence'
 import type {
@@ -20,13 +18,11 @@ const WAIT_DURATION_MS = 5 * 60 * 1000
 
 /** 提供师门账号、商会店铺和持久化生命周期的领域状态。 */
 export const useToolStore = defineStore('tool', () => {
-  const loaded = loadPersistedState()
-  const activeDate = ref(loaded.state.activeDate)
-  const accounts = ref<Account[]>(loaded.state.accounts)
-  const shops = ref<Shop[]>(loaded.state.shops)
-  const loadWarning = ref<string | null>(loaded.warning)
+  const activeDate = ref(getLocalDateKey(new Date()))
+  const accounts = ref<Account[]>([])
+  const shops = ref<Shop[]>([])
+  const loadWarning = ref<string | null>(null)
   const lastSaveResult = ref<SaveResult | null>(null)
-  let pendingCorruptBackup = loaded.recovery
 
   /** 新增账号并返回包含系统字段的领域对象。 */
   function addAccount(draft: AccountDraft): Account {
@@ -41,6 +37,7 @@ export const useToolStore = defineStore('tool', () => {
       highValueCount: 0,
       startedAt: null,
       waitingUntil: null,
+      completedAt: null,
     }
     accounts.value.push(account)
     return account
@@ -112,6 +109,7 @@ export const useToolStore = defineStore('tool', () => {
     if (account === undefined || !['running', 'paused', 'ready'].includes(account.status)) return false
     if (!settleRunningAccount(account, now)) return false
     account.status = 'completed'
+    account.completedAt = now
     account.startedAt = null
     account.waitingUntil = null
     return true
@@ -122,6 +120,7 @@ export const useToolStore = defineStore('tool', () => {
     const account = findAccount(id)
     if (account === undefined || account.status !== 'completed') return false
     account.status = 'paused'
+    account.completedAt = null
     return true
   }
 
@@ -161,6 +160,7 @@ export const useToolStore = defineStore('tool', () => {
       account.highValueCount = 0
       account.startedAt = null
       account.waitingUntil = null
+      account.completedAt = null
     }
     return true
   }
@@ -180,7 +180,6 @@ export const useToolStore = defineStore('tool', () => {
       account.accumulatedMs = accumulatedMs
       account.startedAt = now
     }
-    if (checkpoints.length > 0) persistState()
   }
 
   /** 从未开始和已暂停账号中按有效耗时与账号顺序返回推荐项。 */
@@ -328,32 +327,26 @@ export const useToolStore = defineStore('tool', () => {
     return reordered
   }
 
-  /** 组装唯一允许写入本地存储的领域状态。 */
-  function toPersistedState(): PersistedState {
+  /** 返回与响应式对象脱钩的当前完整状态快照。 */
+  function snapshot(): PersistedState {
     return {
       version: PERSISTENCE_VERSION,
       activeDate: activeDate.value,
-      accounts: accounts.value,
-      shops: shops.value,
+      accounts: structuredClone(accounts.value),
+      shops: structuredClone(shops.value),
     }
   }
 
-  /** 持久化当前领域状态，并公开最近一次保存结果。 */
-  function persistState(): SaveResult {
-    const result = savePersistedState(toPersistedState(), pendingCorruptBackup)
-    if (result.ok) pendingCorruptBackup = null
-    lastSaveResult.value = result
-    return result
+  /** 用已经校验的数据替换全部领域状态，并规范实体排序。 */
+  function hydrate(state: PersistedState, warning: string | null = null): void {
+    const copy = structuredClone(state)
+    activeDate.value = copy.activeDate
+    accounts.value = copy.accounts
+    shops.value = copy.shops
+    loadWarning.value = warning
+    normalizeAccountOrders()
+    for (const category of ['medicine', 'furniture', 'summon', 'cooking'] as const) normalizeShopOrders(category)
   }
-
-  normalizeAccountOrders()
-  for (const category of ['medicine', 'furniture', 'summon', 'cooking'] as const) {
-    normalizeShopOrders(category)
-  }
-  ensureCurrentDate(Date.now())
-  persistState()
-
-  watch([activeDate, accounts, shops], persistState, { deep: true })
 
   return {
     activeDate,
@@ -379,5 +372,7 @@ export const useToolStore = defineStore('tool', () => {
     updateShop,
     removeShop,
     reorderShops,
+    hydrate,
+    snapshot,
   }
 })
