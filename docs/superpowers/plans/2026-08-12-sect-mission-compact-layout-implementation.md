@@ -12,7 +12,7 @@
 
 - 所有新增或修改的方法必须保留中文注释。
 - 不新增单元测试文件，不为测试兼容添加冗余生产代码。
-- 不修改账号推荐算法、五分钟提醒、数据模型或持久化格式。
+- 推荐候选严格限定为未开始和已暂停账号；不修改其余排序规则、五分钟提醒、数据模型或持久化格式。
 - 三药、家具、烹饪默认只显示店铺编号；召唤兽保留详细资料。
 - Git 提交说明使用中文。
 
@@ -23,6 +23,7 @@
 **Files:**
 - Modify: `src/components/accounts/AccountBoard.vue`
 - Modify: `src/components/accounts/AccountCard.vue`
+- Modify: `src/stores/useToolStore.ts`
 
 **Interfaces:**
 - Consumes: 现有 `Account`、`AccountStatus`、`getRecommendedAccount(now)` 及全部账号事件。
@@ -32,28 +33,32 @@
 
   将四块大统计收拢为标题旁紧凑指标，推荐账号文字保留，新增账号按钮保持可见。
 
-- [ ] **Step 2: 将账号列表改为自适应多列网格**
+- [ ] **Step 2: 修正推荐候选状态**
+
+  将 `getRecommendedAccount(now)` 的候选账号严格限定为 `idle` 和 `paused`，继续沿用有效耗时与人工顺序排序。
+
+- [ ] **Step 3: 将账号列表改为自适应多列网格**
 
   桌面端使用 `repeat(auto-fit, minmax(...))`，平板双列、手机单列，卡片高度由内容决定且不横向溢出。
 
-- [ ] **Step 3: 重排账号卡信息与操作**
+- [ ] **Step 4: 重排账号卡信息与操作**
 
   将账号名、状态、计时和主要操作压缩到紧凑卡片；备注限制两行；编辑删除保持次级层级；拖拽和键盘排序不变。
 
-- [ ] **Step 4: 强化推荐账号**
+- [ ] **Step 5: 强化推荐账号**
 
   推荐卡使用暖色底、强化边框和“★ 推荐”文字，使推荐状态不依赖颜色表达。
 
-- [ ] **Step 5: 验证账号切片**
+- [ ] **Step 6: 验证账号切片**
 
   Run: `npm run type-check && npm run lint && npm run build`
   Expected: 三条命令退出码均为 0。
 
-- [ ] **Step 6: 提交账号切片**
+- [ ] **Step 7: 提交账号切片**
 
   ```powershell
-  git add src/components/accounts/AccountBoard.vue src/components/accounts/AccountCard.vue
-  git commit -m "feat: 改造紧凑账号操作台"
+  git add src/components/accounts/AccountBoard.vue src/components/accounts/AccountCard.vue src/stores/useToolStore.ts
+  git commit -m "feat: 改造紧凑账号操作台并修正推荐"
   ```
 
 ### Task 2: 建立店铺编号胶囊墙

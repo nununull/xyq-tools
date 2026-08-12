@@ -128,7 +128,7 @@ function handleSortKey(event: KeyboardEvent): void {
             v-if="recommended"
             class="account-card__recommendation"
           >
-            今日推荐
+            推荐
           </span>
         </div>
         <p v-if="account.note.length > 0">
@@ -240,8 +240,8 @@ function handleSortKey(event: KeyboardEvent): void {
 <style scoped>
 .account-card {
   display: grid;
-  gap: 1.25rem;
-  padding: 1.25rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
@@ -249,8 +249,9 @@ function handleSortKey(event: KeyboardEvent): void {
 }
 
 .account-card--recommended {
-  border-color: var(--mint-700);
-  box-shadow: 0 0 0 0.1875rem color-mix(in srgb, var(--mint-500) 18%, transparent);
+  background: #fffaf0;
+  border-color: #c99538;
+  box-shadow: 0 0 0 0.125rem rgb(201 149 56 / 18%);
 }
 
 .account-card--completed {
@@ -260,7 +261,7 @@ function handleSortKey(event: KeyboardEvent): void {
 .account-card__header {
   display: flex;
   align-items: start;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .account-card__drag-handle {
@@ -268,7 +269,7 @@ function handleSortKey(event: KeyboardEvent): void {
   padding: 0.125rem;
   color: var(--text-muted);
   cursor: grab;
-  font-size: 1.25rem;
+  font-size: 1rem;
   line-height: 1;
   touch-action: none;
   user-select: none;
@@ -297,21 +298,25 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .account-card h3 {
   overflow-wrap: anywhere;
-  font-size: 1.125rem;
+  font-size: 1rem;
   letter-spacing: -0.02em;
 }
 
 .account-card__identity p {
-  margin-top: 0.375rem;
+  display: -webkit-box;
+  margin-top: 0.25rem;
+  overflow: hidden;
   color: var(--text-muted);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 0.75rem;
+  line-height: 1.35;
   overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .account-card__recommendation,
 .account-card__status {
-  padding: 0.25rem 0.5rem;
+  padding: 0.1875rem 0.4375rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -319,8 +324,8 @@ function handleSortKey(event: KeyboardEvent): void {
 }
 
 .account-card__recommendation {
-  color: var(--mint-700);
-  background: color-mix(in srgb, var(--mint-500) 18%, transparent);
+  color: #684515;
+  background: #f6dfaa;
 }
 
 .account-card__status {
@@ -346,7 +351,7 @@ function handleSortKey(event: KeyboardEvent): void {
 .account-card__timing {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .account-card__timing > div {
@@ -362,7 +367,7 @@ function handleSortKey(event: KeyboardEvent): void {
 }
 
 .account-card__timing strong {
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
@@ -372,22 +377,25 @@ function handleSortKey(event: KeyboardEvent): void {
 }
 
 .account-card__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  gap: 0.375rem;
 }
 
 .account-card__primary-actions,
 .account-card__admin-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.375rem;
+}
+
+.account-card__admin-actions {
+  justify-content: end;
 }
 
 .account-card__footer button {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  min-height: 2rem;
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.8125rem;
 }
 
 .account-card__secondary,

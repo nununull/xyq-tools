@@ -90,15 +90,17 @@ watch(
   >
     <header class="account-board__header">
       <div>
-        <p class="account-board__eyebrow">
-          今日账号
-        </p>
+        <div class="account-board__title-line">
+          <p class="account-board__eyebrow">
+            今日账号
+          </p>
+          <span>{{ toolStore.accounts.length }} 个</span>
+          <span>{{ runningCount }} 计时</span>
+          <span>{{ waitingCount }} 等待</span>
+        </div>
         <h2 id="account-board-title">
-          并行任务工作台
+          账号操作台
         </h2>
-        <p class="account-board__summary">
-          推荐只负责提示优先级，不会自动开始计时。
-        </p>
       </div>
       <button
         type="button"
@@ -109,24 +111,14 @@ watch(
       </button>
     </header>
 
-    <dl class="account-board__stats">
-      <div>
-        <dt>账号总数</dt>
-        <dd>{{ toolStore.accounts.length }}</dd>
-      </div>
-      <div>
-        <dt>计时中</dt>
-        <dd>{{ runningCount }}</dd>
-      </div>
-      <div>
-        <dt>等待中</dt>
-        <dd>{{ waitingCount }}</dd>
-      </div>
-      <div class="account-board__recommended-stat">
-        <dt>推荐账号</dt>
-        <dd>{{ recommendedAccount?.name ?? '暂无' }}</dd>
-      </div>
-    </dl>
+    <div
+      class="account-board__recommendation"
+      role="status"
+    >
+      <span>★ 当前推荐</span>
+      <strong>{{ recommendedAccount?.name ?? '暂无可推荐账号' }}</strong>
+      <small>仅推荐未开始或已暂停账号</small>
+    </div>
 
     <div
       v-if="sortableAccounts.length === 0"
@@ -178,25 +170,24 @@ watch(
 <style scoped>
 .account-board {
   display: grid;
-  gap: 1.25rem;
+  gap: 0.75rem;
 }
 
 .account-board__header {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
 }
 
 .account-board__eyebrow,
-.account-board__summary,
 .account-board h2,
 .account-board__empty p {
   margin-top: 0;
 }
 
 .account-board__eyebrow {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   color: var(--mint-700);
   font-size: 0.75rem;
   font-weight: 700;
@@ -204,61 +195,52 @@ watch(
 }
 
 .account-board h2 {
-  margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  margin: 0.125rem 0 0;
+  font-size: 1.25rem;
   letter-spacing: -0.03em;
 }
 
-.account-board__summary {
-  margin-bottom: 0;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  line-height: 1.6;
+.account-board__title-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.account-board__stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 0;
-  overflow: hidden;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-}
-
-.account-board__stats > div {
-  min-width: 0;
-  padding: 1rem;
-  border-right: 1px solid var(--border);
-}
-
-.account-board__stats > div:last-child {
-  border-right: 0;
-}
-
-.account-board__stats dt {
-  margin-bottom: 0.375rem;
+.account-board__title-line > span {
   color: var(--text-muted);
   font-size: 0.75rem;
-  font-weight: 700;
 }
 
-.account-board__stats dd {
-  margin: 0;
-  overflow: hidden;
-  font-size: 1.125rem;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.account-board__recommendation {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  color: #684515;
+  background: #fff4d9;
+  border: 1px solid #d9b878;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
 }
 
-.account-board__recommended-stat dd {
-  color: var(--mint-700);
+.account-board__recommendation span {
+  font-weight: 800;
+}
+
+.account-board__recommendation strong {
+  font-size: 1rem;
+}
+
+.account-board__recommendation small {
+  margin-left: auto;
+  color: #81591f;
 }
 
 .account-board__list {
   display: grid;
-  gap: 0.875rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.625rem;
+  align-items: start;
 }
 
 .account-board__ghost {
@@ -291,16 +273,14 @@ watch(
     justify-self: start;
   }
 
-  .account-board__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .account-board__recommendation {
+    align-items: start;
+    flex-wrap: wrap;
   }
 
-  .account-board__stats > div:nth-child(2) {
-    border-right: 0;
-  }
-
-  .account-board__stats > div:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--border);
+  .account-board__recommendation small {
+    width: 100%;
+    margin-left: 0;
   }
 }
 </style>
