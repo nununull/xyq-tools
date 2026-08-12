@@ -5,6 +5,7 @@ import type { Shop } from '@/types/domain'
 const props = defineProps<{
   shop: Shop
   categoryTitle: string
+  showName?: boolean
   canMoveUp: boolean
   canMoveDown: boolean
 }>()
@@ -56,7 +57,7 @@ function handleSortKey(event: KeyboardEvent): void {
       :title="`编辑店铺 ${shop.number}`"
       @click="editShop"
     >
-      {{ shop.number }}
+      {{ showName ? `${shop.number}-${shop.name}` : shop.number }}
     </button>
     <button
       class="shop-number-pill__remove"
@@ -106,6 +107,10 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .shop-number-pill__number {
   min-width: 2.5rem;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--mint-800);
   background: transparent;
   font-weight: 850;
