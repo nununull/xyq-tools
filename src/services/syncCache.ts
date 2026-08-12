@@ -1,4 +1,4 @@
-import { parsePersistedState } from './persistence'
+import { clonePersistedState, parsePersistedState } from './persistence'
 import type { PersistedState } from '@/types/domain'
 
 export interface SyncCacheEntry { revision: number; queuedAt: number; state: PersistedState }
@@ -20,7 +20,7 @@ export function loadSyncCache(userId: string): SyncCacheEntry | null {
 /** 保存指定用户的新修订快照，并返回本次缓存条目。 */
 export function saveSyncCache(userId: string, state: PersistedState): SyncCacheEntry {
   const previous = loadSyncCache(userId)
-  const entry = { revision: (previous?.revision ?? 0) + 1, queuedAt: Date.now(), state: parsePersistedState(structuredClone(state)) }
+  const entry = { revision: (previous?.revision ?? 0) + 1, queuedAt: Date.now(), state: parsePersistedState(clonePersistedState(state)) }
   localStorage.setItem(getSyncCacheKey(userId), JSON.stringify(entry))
   return entry
 }

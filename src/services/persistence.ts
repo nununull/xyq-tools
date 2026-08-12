@@ -85,6 +85,16 @@ export function parsePersistedState(value: unknown): PersistedState {
   return migrated
 }
 
+/** 按领域结构复制持久化状态，避免浏览器直接克隆 Vue 响应式代理。 */
+export function clonePersistedState(state: PersistedState): PersistedState {
+  return {
+    version: state.version,
+    activeDate: state.activeDate,
+    accounts: state.accounts.map((account) => ({ ...account })),
+    shops: state.shops.map((shop) => ({ ...shop, items: [...shop.items] })),
+  }
+}
+
 /** 为旧版账号补齐新增字段，再交给严格校验流程处理。 */
 function migratePersistedState(value: unknown): unknown {
   if (!isRecord(value) || value.version !== PERSISTENCE_VERSION || !Array.isArray(value.accounts)) {

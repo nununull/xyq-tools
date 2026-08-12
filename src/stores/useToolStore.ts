@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getLocalDateKey } from '@/services/localDate'
 import {
+  clonePersistedState,
   PERSISTENCE_VERSION,
   type SaveResult,
 } from '@/services/persistence'
@@ -329,17 +330,17 @@ export const useToolStore = defineStore('tool', () => {
 
   /** 返回与响应式对象脱钩的当前完整状态快照。 */
   function snapshot(): PersistedState {
-    return {
+    return clonePersistedState({
       version: PERSISTENCE_VERSION,
       activeDate: activeDate.value,
-      accounts: structuredClone(accounts.value),
-      shops: structuredClone(shops.value),
-    }
+      accounts: accounts.value,
+      shops: shops.value,
+    })
   }
 
   /** 用已经校验的数据替换全部领域状态，并规范实体排序。 */
   function hydrate(state: PersistedState, warning: string | null = null): void {
-    const copy = structuredClone(state)
+    const copy = clonePersistedState(state)
     activeDate.value = copy.activeDate
     accounts.value = copy.accounts
     shops.value = copy.shops
