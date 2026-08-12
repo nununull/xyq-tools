@@ -239,8 +239,7 @@ function clearSearch(): void {
 <style scoped>
 .shop-panel {
   display: grid;
-  gap: 1.25rem;
-  padding-top: 0.5rem;
+  gap: 0.75rem;
 }
 
 .shop-panel__header {
@@ -271,7 +270,7 @@ function clearSearch(): void {
 
 .shop-panel h2 {
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   letter-spacing: -0.03em;
 }
 
@@ -336,7 +335,7 @@ function clearSearch(): void {
 .shop-panel__categories {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.625rem;
   align-items: start;
 }
 

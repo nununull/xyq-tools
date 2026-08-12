@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import ShopCard from '@/components/shops/ShopCard.vue'
+import ShopNumberPill from '@/components/shops/ShopNumberPill.vue'
 import type { Shop, ShopCategory } from '@/types/domain'
 
 const props = defineProps<{
@@ -104,6 +105,7 @@ watch(
       v-else
       v-model="sortableShops"
       class="shop-category__list"
+      :class="{ 'shop-category__list--pills': category !== 'summon' }"
       handle=".shop-card__drag-handle"
       ghost-class="shop-category__ghost"
       :animation="160"
@@ -111,16 +113,31 @@ watch(
       @start="startDragging"
       @end="finishDragging"
     >
-      <ShopCard
-        v-for="(shop, index) in sortableShops"
-        :key="shop.id"
-        :shop="shop"
-        :can-move-up="index > 0"
-        :can-move-down="index < sortableShops.length - 1"
-        @edit="emit('edit', $event)"
-        @remove="emit('remove', $event)"
-        @move="moveShop"
-      />
+      <template v-if="category === 'summon'">
+        <ShopCard
+          v-for="(shop, index) in sortableShops"
+          :key="shop.id"
+          :shop="shop"
+          :can-move-up="index > 0"
+          :can-move-down="index < sortableShops.length - 1"
+          @edit="emit('edit', $event)"
+          @remove="emit('remove', $event)"
+          @move="moveShop"
+        />
+      </template>
+      <template v-else>
+        <ShopNumberPill
+          v-for="(shop, index) in sortableShops"
+          :key="shop.id"
+          :shop="shop"
+          :category-title="title"
+          :can-move-up="index > 0"
+          :can-move-down="index < sortableShops.length - 1"
+          @edit="emit('edit', $event)"
+          @remove="emit('remove', $event)"
+          @move="moveShop"
+        />
+      </template>
     </VueDraggable>
   </section>
 </template>
@@ -129,9 +146,9 @@ watch(
 .shop-category {
   display: grid;
   align-content: start;
-  gap: 1rem;
+  gap: 0.625rem;
   min-width: 0;
-  padding: 1rem;
+  padding: 0.75rem;
   background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
@@ -151,7 +168,7 @@ watch(
 
 .shop-category h3 {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1rem;
   letter-spacing: -0.02em;
 }
 
@@ -168,7 +185,14 @@ watch(
 
 .shop-category__list {
   display: grid;
-  gap: 0.625rem;
+  gap: 0.5rem;
+}
+
+.shop-category__list--pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 0.375rem;
 }
 
 .shop-category__ghost {

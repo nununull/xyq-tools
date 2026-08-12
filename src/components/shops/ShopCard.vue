@@ -111,8 +111,8 @@ function handleSortKey(event: KeyboardEvent): void {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.5rem;
+  padding: 0.625rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.625rem;
@@ -150,7 +150,7 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .shop-card h4 {
   overflow-wrap: anywhere;
-  font-size: 1rem;
+  font-size: 0.875rem;
 }
 
 .shop-card__number {
@@ -164,7 +164,7 @@ function handleSortKey(event: KeyboardEvent): void {
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
-  margin: 0.625rem 0 0;
+  margin: 0.375rem 0 0;
   padding: 0;
   list-style: none;
 }
@@ -186,11 +186,11 @@ function handleSortKey(event: KeyboardEvent): void {
 }
 
 .shop-card .shop-card__items-empty {
-  margin-top: 0.625rem;
+  margin-top: 0.375rem;
 }
 
 .shop-card .shop-card__note {
-  margin-top: 0.625rem;
+  margin-top: 0.375rem;
 }
 
 .shop-card footer {
