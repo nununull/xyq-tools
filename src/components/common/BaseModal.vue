@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* global Event, HTMLDialogElement, HTMLElement, MouseEvent, crypto, document */
+/* global Event, HTMLDialogElement, HTMLElement, crypto, document */
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -7,9 +7,11 @@ const props = withDefaults(
     open: boolean
     title: string
     description?: string
+    size?: 'default' | 'wide'
   }>(),
   {
     description: undefined,
+    size: 'default',
   },
 )
 
@@ -75,11 +77,6 @@ function handleCancel(event: Event): void {
   requestClose()
 }
 
-/** 点击遮罩时请求父组件关闭，内容区域点击不受影响。 */
-function handleBackdropClick(event: MouseEvent): void {
-  if (event.target === event.currentTarget) requestClose()
-}
-
 watch(
   () => props.open,
   (open) => {
@@ -99,17 +96,27 @@ onBeforeUnmount(hideDialog)
   <dialog
     ref="dialog"
     class="base-modal"
+    :class="{ 'base-modal--wide': size === 'wide' }"
     :aria-labelledby="titleId"
     :aria-describedby="description === undefined ? undefined : descriptionId"
     @cancel="handleCancel"
     @close="handleClose"
-    @click="handleBackdropClick"
   >
     <section class="base-modal__content">
       <header class="base-modal__header">
-        <h2 :id="titleId">
-          {{ title }}
-        </h2>
+        <div>
+          <h2 :id="titleId">
+            {{ title }}
+          </h2>
+          <button
+            class="base-modal__close"
+            type="button"
+            aria-label="关闭弹窗"
+            @click="requestClose"
+          >
+            ×
+          </button>
+        </div>
         <p
           v-if="description !== undefined"
           :id="descriptionId"
@@ -145,6 +152,35 @@ onBeforeUnmount(hideDialog)
 .base-modal__header h2,
 .base-modal__header p {
   margin-top: 0;
+}
+
+.base-modal--wide {
+  width: min(calc(100% - 2rem), 64rem);
+}
+
+.base-modal__header > div {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.base-modal__close {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border-color: transparent;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.base-modal__close:hover {
+  color: var(--text);
+  background: var(--surface-soft);
+  border-color: var(--border);
 }
 
 .base-modal__header h2 {
