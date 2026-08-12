@@ -2,6 +2,8 @@
 import { ClipboardClock, Home, Sparkles } from 'lucide-vue-next'
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
+import { inject } from 'vue'
+import AccountControl from '@/components/auth/AccountControl.vue'
 
 interface NavigationItem {
   name: 'home' | 'sect-mission'
@@ -10,6 +12,7 @@ interface NavigationItem {
 }
 
 const route = useRoute()
+const openAuthModal = inject<() => void>('openAuthModal', () => undefined)
 
 const navigationItems: NavigationItem[] = [
   { name: 'home', label: '首页', icon: Home },
@@ -58,10 +61,10 @@ const navigationItems: NavigationItem[] = [
         </RouterLink>
       </nav>
 
-      <p class="app-layout__storage-note">
-        <span aria-hidden="true">●</span>
-        数据只保存在当前浏览器
-      </p>
+      <AccountControl
+        class="app-layout__storage-note"
+        @login="openAuthModal"
+      />
     </aside>
 
     <header class="app-layout__topbar">
@@ -97,6 +100,7 @@ const navigationItems: NavigationItem[] = [
           <span>{{ item.label }}</span>
         </RouterLink>
       </nav>
+      <AccountControl @login="openAuthModal" />
     </header>
 
     <main

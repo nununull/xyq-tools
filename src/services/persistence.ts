@@ -63,10 +63,7 @@ export function loadPersistedState(): LoadResult {
   }
 
   try {
-    const parsed: unknown = migratePersistedState(JSON.parse(raw))
-    if (!isPersistedState(parsed)) {
-      throw new Error('数据结构或版本不受支持')
-    }
+    const parsed = parsePersistedState(JSON.parse(raw))
     return { state: parsed, warning: null, recovery: null }
   } catch (error: unknown) {
     const recovery = createPendingCorruptBackup(raw)
@@ -81,7 +78,24 @@ export function loadPersistedState(): LoadResult {
   }
 }
 
-/** 为旧版账号补齐当日高价值次数，再交给严格校验流程处理。 */
+/** 迁移并严格解析任意来源的持久化状态，非法数据直接抛错。 */
+export function parsePersistedState(value: unknown): PersistedState {
+  const migrated = migratePersistedState(value)
+  if (!isPersistedState(migrated)) throw new Error('数据结构或版本不受支持')
+  return migrated
+}
+
+/** 按领域结构复制持久化状态，避免浏览器直接克隆 Vue 响应式代理。 */
+export function clonePersistedState(state: PersistedState): PersistedState {
+  return {
+    version: state.version,
+    activeDate: state.activeDate,
+    accounts: state.accounts.map((account) => ({ ...account })),
+    shops: state.shops.map((shop) => ({ ...shop, items: [...shop.items] })),
+  }
+}
+
+/** 为旧版账号补齐新增字段，再交给严格校验流程处理。 */
 function migratePersistedState(value: unknown): unknown {
   if (!isRecord(value) || value.version !== PERSISTENCE_VERSION || !Array.isArray(value.accounts)) {
     return value
@@ -90,9 +104,23 @@ function migratePersistedState(value: unknown): unknown {
   return {
     ...value,
     accounts: value.accounts.map((account) => {
-      if (!isRecord(account) || 'highValueCount' in account) return account
-      return { ...account, highValueCount: 0 }
+      if (!isRecord(account)) return account
+      return {
+        ...account,
+        ...('highValueCount' in account ? {} : { highValueCount: 0 }),
+        ...('completedAt' in account ? {} : { completedAt: null }),
+      }
     }),
+  }
+}
+
+/** 清除游客业务主键，不触碰损坏备份、认证 Session 或用户同步缓存。 */
+export function clearGuestPersistedState(): SaveResult {
+  try {
+    localStorage.removeItem(PERSISTENCE_KEY)
+    return { ok: true }
+  } catch (error: unknown) {
+    return { ok: false, message: `清除游客数据失败：${getErrorMessage(error)}` }
   }
 }
 
@@ -141,11 +169,13 @@ function isAccount(value: unknown): value is Account {
 
   const startedAtIsValid = value.startedAt === null || isNonNegativeFiniteNumber(value.startedAt)
   const waitingUntilIsValid = value.waitingUntil === null || isNonNegativeFiniteNumber(value.waitingUntil)
-  if (!startedAtIsValid || !waitingUntilIsValid) return false
+  const completedAtIsValid = value.completedAt === null || isNonNegativeFiniteNumber(value.completedAt)
+  if (!startedAtIsValid || !waitingUntilIsValid || !completedAtIsValid) return false
 
   if (value.status === 'running') return value.startedAt !== null && value.waitingUntil === null
   if (value.status === 'waiting') return value.startedAt === null && value.waitingUntil !== null
-  return value.startedAt === null && value.waitingUntil === null
+  if (value.startedAt !== null || value.waitingUntil !== null) return false
+  return value.status === 'completed' || value.completedAt === null
 }
 
 /** 判断未知值是否为字段完整的商会店铺。 */
