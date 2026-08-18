@@ -30,7 +30,11 @@ const runningCount = computed(
 const waitingCount = computed(
   () => toolStore.accounts.filter(({ status }) => status === 'waiting').length,
 )
-const recommendedAccount = computed(() => toolStore.getRecommendedAccount(props.now))
+const RECOMMENDATION_INTERVAL_MS = 5_000
+const recommendationNow = computed(
+  () => Math.floor(props.now / RECOMMENDATION_INTERVAL_MS) * RECOMMENDATION_INTERVAL_MS,
+)
+const recommendedAccount = computed(() => toolStore.getRecommendedAccount(recommendationNow.value))
 
 /** 从领域状态创建仅供视图排序的浅拷贝，禁止拖拽过程直接改写 store 数组。 */
 function syncSortableAccounts(): void {
@@ -117,7 +121,7 @@ watch(
     >
       <span>★ 当前推荐</span>
       <strong>{{ recommendedAccount?.name ?? '暂无可推荐账号' }}</strong>
-      <small>仅推荐未开始或已暂停账号</small>
+      <small>实时比较可操作账号 · 每 5 秒刷新</small>
     </div>
 
     <div

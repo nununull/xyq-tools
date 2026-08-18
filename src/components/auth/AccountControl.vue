@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { usePersistenceStore } from '@/stores/usePersistenceStore'
 import { useUiStore } from '@/stores/useUiStore'
 
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
 defineEmits<{ login: [] }>()
 const authStore = useAuthStore(); const persistenceStore = usePersistenceStore(); const uiStore = useUiStore()
 
@@ -19,6 +20,7 @@ async function signOut(): Promise<void> {
 <template>
   <section
     class="account-control"
+    :class="{ 'account-control--compact': compact }"
     :aria-label="authStore.user ? `账户 ${authStore.email}，${persistenceStore.syncMessage}` : '本地模式账户入口'"
   >
     <Cloud
@@ -57,4 +59,6 @@ async function signOut(): Promise<void> {
 .account-control strong,.account-control small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account-control small { color: var(--text-muted); }
 .account-control button { display: grid; place-items: center; padding: .5rem; }
+.account-control--compact { display: grid; justify-items: center; gap: .5rem; padding-top: 1rem; }
+.account-control--compact div { display: none; }
 </style>

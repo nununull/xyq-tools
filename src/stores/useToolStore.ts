@@ -183,10 +183,10 @@ export const useToolStore = defineStore('tool', () => {
     }
   }
 
-  /** 从未开始和已暂停账号中按有效耗时与账号顺序返回推荐项。 */
+  /** 从非等待、非完成账号中按实时有效耗时与账号顺序返回推荐项。 */
   function getRecommendedAccount(now: number): Account | null {
     if (!isValidNow(now)) return null
-    const candidates = accounts.value.filter(({ status }) => ['idle', 'paused'].includes(status))
+    const candidates = accounts.value.filter(({ status }) => !['waiting', 'completed'].includes(status))
     candidates.sort((left, right) => {
       const elapsedDifference = getEffectiveElapsedMs(left, now) - getEffectiveElapsedMs(right, now)
       return elapsedDifference || left.order - right.order

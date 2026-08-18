@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { ClipboardClock, Home, Sparkles } from 'lucide-vue-next'
+import {
+  ClipboardClock,
+  Home,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sparkles,
+} from 'lucide-vue-next'
 import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import AccountControl from '@/components/auth/AccountControl.vue'
 
 interface NavigationItem {
@@ -13,6 +19,28 @@ interface NavigationItem {
 
 const route = useRoute()
 const openAuthModal = inject<() => void>('openAuthModal', () => undefined)
+const SIDEBAR_COLLAPSED_KEY = 'xyq-tools:sidebar-collapsed'
+
+/** 读取侧栏偏好；浏览器禁用本地存储时安全回退为展开状态。 */
+function readSidebarCollapsed(): boolean {
+  try {
+    return globalThis.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+const sidebarCollapsed = ref(readSidebarCollapsed())
+
+/** 切换桌面侧栏状态，并尽力保存用户选择。 */
+function toggleSidebar(): void {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  try {
+    globalThis.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed.value))
+  } catch {
+    // 本地存储不可用时仍保留当前页面内的交互状态。
+  }
+}
 
 const navigationItems: NavigationItem[] = [
   { name: 'home', label: '首页', icon: Home },
@@ -27,18 +55,45 @@ const navigationItems: NavigationItem[] = [
       href="#main-content"
     >跳到主要内容</a>
 
-    <aside class="app-layout__sidebar">
-      <RouterLink
-        class="app-layout__brand"
-        :to="{ name: 'home' }"
-        aria-label="梦幻西游工具箱首页"
-      >
-        <Sparkles
-          :size="20"
-          aria-hidden="true"
-        />
-        <span>梦幻西游工具箱</span>
-      </RouterLink>
+    <aside
+      id="desktop-sidebar"
+      class="app-layout__sidebar"
+      :class="{ 'app-layout__sidebar--collapsed': sidebarCollapsed }"
+    >
+      <div class="app-layout__sidebar-header">
+        <RouterLink
+          class="app-layout__brand"
+          :to="{ name: 'home' }"
+          aria-label="梦幻西游工具箱首页"
+          :title="sidebarCollapsed ? '梦幻西游工具箱' : undefined"
+        >
+          <Sparkles
+            :size="20"
+            aria-hidden="true"
+          />
+          <span>梦幻西游工具箱</span>
+        </RouterLink>
+        <button
+          class="app-layout__sidebar-toggle"
+          type="button"
+          :aria-label="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+          :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+          aria-controls="desktop-sidebar"
+          :aria-expanded="!sidebarCollapsed"
+          @click="toggleSidebar"
+        >
+          <PanelLeftOpen
+            v-if="sidebarCollapsed"
+            :size="18"
+            aria-hidden="true"
+          />
+          <PanelLeftClose
+            v-else
+            :size="18"
+            aria-hidden="true"
+          />
+        </button>
+      </div>
 
       <nav
         class="app-layout__navigation"
@@ -51,6 +106,7 @@ const navigationItems: NavigationItem[] = [
           active-class="app-layout__navigation-link--active"
           :to="{ name: item.name }"
           :aria-current="route.name === item.name ? 'page' : undefined"
+          :title="sidebarCollapsed ? item.label : undefined"
         >
           <component
             :is="item.icon"
@@ -63,6 +119,7 @@ const navigationItems: NavigationItem[] = [
 
       <AccountControl
         class="app-layout__storage-note"
+        :compact="sidebarCollapsed"
         @login="openAuthModal"
       />
     </aside>
@@ -106,6 +163,7 @@ const navigationItems: NavigationItem[] = [
     <main
       id="main-content"
       class="app-layout__content"
+      :class="{ 'app-layout__content--sidebar-collapsed': sidebarCollapsed }"
       tabindex="-1"
     >
       <RouterView />
@@ -148,6 +206,52 @@ const navigationItems: NavigationItem[] = [
     linear-gradient(180deg, rgb(255 255 255 / 46%), transparent 16rem),
     var(--surface-soft);
   border-right: 1px solid var(--border);
+  transition: width 180ms ease, padding 180ms ease;
+}
+
+.app-layout__sidebar--collapsed {
+  width: 4.5rem;
+  padding-inline: 0.75rem;
+}
+
+.app-layout__sidebar-header {
+  min-width: 0;
+}
+
+.app-layout__sidebar-toggle {
+  position: absolute;
+  top: 4.25rem;
+  right: -1.25rem;
+  z-index: 1;
+  display: grid;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  place-items: center;
+  color: var(--mint-700);
+  background: var(--surface-raised);
+  border-color: var(--border);
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 0.75rem rgb(37 54 48 / 10%);
+}
+
+.app-layout__sidebar-toggle:hover {
+  color: var(--text);
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.app-layout__sidebar--collapsed .app-layout__brand {
+  justify-content: center;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.app-layout__sidebar--collapsed .app-layout__brand span,
+.app-layout__sidebar--collapsed .app-layout__navigation-link span {
+  display: none;
 }
 
 .app-layout__brand {
@@ -187,6 +291,12 @@ const navigationItems: NavigationItem[] = [
   transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
 
+.app-layout__sidebar--collapsed .app-layout__navigation-link {
+  justify-content: center;
+  width: 3rem;
+  padding-inline: 0;
+}
+
 .app-layout__navigation-link:hover {
   color: var(--text);
   background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
@@ -216,6 +326,12 @@ const navigationItems: NavigationItem[] = [
   font-size: 0.5rem;
 }
 
+.app-layout__sidebar--collapsed .app-layout__storage-note {
+  display: grid;
+  justify-items: center;
+  padding-top: 1rem;
+}
+
 .app-layout__topbar {
   display: none;
 }
@@ -223,6 +339,11 @@ const navigationItems: NavigationItem[] = [
 .app-layout__content {
   min-width: 0;
   margin-left: 15rem;
+  transition: margin-left 180ms ease;
+}
+
+.app-layout__content--sidebar-collapsed {
+  margin-left: 4.5rem;
 }
 
 @media (max-width: 44.999rem) {
@@ -268,6 +389,10 @@ const navigationItems: NavigationItem[] = [
   .app-layout__content {
     margin-left: 0;
   }
+
+  .app-layout__content--sidebar-collapsed {
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 30rem) {
@@ -292,7 +417,9 @@ const navigationItems: NavigationItem[] = [
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-layout__skip-link {
+  .app-layout__skip-link,
+  .app-layout__sidebar,
+  .app-layout__content {
     transition: none;
   }
 }
