@@ -5,7 +5,7 @@ import AccountCard from '@/components/accounts/AccountCard.vue'
 import { useToolStore } from '@/stores/useToolStore'
 import type { Account } from '@/types/domain'
 
-const props = defineProps<{
+defineProps<{
   now: number
 }>()
 
@@ -30,11 +30,7 @@ const runningCount = computed(
 const waitingCount = computed(
   () => toolStore.accounts.filter(({ status }) => status === 'waiting').length,
 )
-const RECOMMENDATION_INTERVAL_MS = 5_000
-const recommendationNow = computed(
-  () => Math.floor(props.now / RECOMMENDATION_INTERVAL_MS) * RECOMMENDATION_INTERVAL_MS,
-)
-const recommendedAccount = computed(() => toolStore.getRecommendedAccount(recommendationNow.value))
+const recommendedAccount = computed(() => toolStore.getRecommendedAccount())
 
 /** 从领域状态创建仅供视图排序的浅拷贝，禁止拖拽过程直接改写 store 数组。 */
 function syncSortableAccounts(): void {
@@ -119,9 +115,9 @@ watch(
       class="account-board__recommendation"
       role="status"
     >
-      <span>★ 当前推荐</span>
+      <span>★ 下一账号</span>
       <strong>{{ recommendedAccount?.name ?? '暂无可推荐账号' }}</strong>
-      <small>实时比较可操作账号 · 每 5 秒刷新</small>
+      <small>按有效耗时实时更新</small>
     </div>
 
     <div

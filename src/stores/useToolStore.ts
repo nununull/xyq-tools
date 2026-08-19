@@ -183,12 +183,13 @@ export const useToolStore = defineStore('tool', () => {
     }
   }
 
-  /** 从非等待、非完成账号中按实时有效耗时与账号顺序返回推荐项。 */
-  function getRecommendedAccount(now: number): Account | null {
-    if (!isValidNow(now)) return null
-    const candidates = accounts.value.filter(({ status }) => !['waiting', 'completed'].includes(status))
+  /** 从可开始账号中按有效耗时与账号顺序返回推荐项。 */
+  function getRecommendedAccount(): Account | null {
+    const candidates = accounts.value.filter(({ status }) =>
+      ['idle', 'paused', 'ready'].includes(status),
+    )
     candidates.sort((left, right) => {
-      const elapsedDifference = getEffectiveElapsedMs(left, now) - getEffectiveElapsedMs(right, now)
+      const elapsedDifference = left.accumulatedMs - right.accumulatedMs
       return elapsedDifference || left.order - right.order
     })
     return candidates[0] ?? null
@@ -267,11 +268,6 @@ export const useToolStore = defineStore('tool', () => {
     if (!isValidNow(account.startedAt)) return null
     const accumulatedMs = account.accumulatedMs + Math.max(0, now - account.startedAt)
     return isNonNegativeFiniteNumber(accumulatedMs) ? accumulatedMs : null
-  }
-
-  /** 计算账号在指定时刻的实时有效耗时。 */
-  function getEffectiveElapsedMs(account: Account, now: number): number {
-    return getSettledAccumulatedMs(account, now) ?? Number.MAX_VALUE
   }
 
   /** 判断未知数值是否为可安全持久化的非负有限数。 */
