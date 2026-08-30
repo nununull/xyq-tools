@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { TOOL_CATALOG } from '@/config/toolCatalog'
+</script>
+
 <template>
   <div class="home-view">
     <section
@@ -30,28 +34,21 @@
 
       <div class="home-view__tool-list">
         <RouterLink
+          v-for="item in TOOL_CATALOG"
+          :key="item.routeName"
           class="tool-card tool-card--available"
-          :to="{ name: 'sect-mission' }"
+          :to="{ name: item.routeName }"
         >
-          <span class="tool-card__index">01</span>
+          <span class="tool-card__index">{{ item.index }}</span>
           <span class="tool-card__content">
-            <strong>师门助手</strong>
-            <span>多账号计时、高价值提醒和商会检索，一页处理。</span>
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.description }}</span>
           </span>
           <span
             class="tool-card__action"
             aria-hidden="true"
-          >打开工具 →</span>
+          >打开工具</span>
         </RouterLink>
-
-        <article class="tool-card tool-card--upcoming">
-          <span class="tool-card__index">02</span>
-          <span class="tool-card__content">
-            <strong>更多工具</strong>
-            <span>日常与店铺相关的工具正在整理中。</span>
-          </span>
-          <span class="tool-card__status">即将推出</span>
-        </article>
       </div>
     </section>
   </div>
@@ -191,28 +188,6 @@ h1 {
   color: var(--mint-700);
   font-size: 0.875rem;
   font-weight: 700;
-}
-
-.tool-card--upcoming {
-  background: color-mix(in srgb, var(--surface-soft) 58%, var(--surface));
-}
-
-.tool-card--upcoming .tool-card__content,
-.tool-card--upcoming .tool-card__index {
-  opacity: 0.68;
-}
-
-.tool-card__status {
-  align-self: end;
-  grid-column: 2;
-  width: fit-content;
-  padding: 0.25rem 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
 }
 
 @media (max-width: 40rem) {

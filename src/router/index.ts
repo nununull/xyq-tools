@@ -13,5 +13,10 @@ export const router = createRouter({
       name: 'sect-mission',
       component: () => import('@/views/SectMissionView.vue'),
     },
+    {
+      path: '/adventure-guides',
+      name: 'adventure-guides',
+      component: () => import('@/views/AdventureGuidesView.vue'),
+    },
   ],
 })

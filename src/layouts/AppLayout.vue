@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  ClipboardClock,
   Home,
   PanelLeftClose,
   PanelLeftOpen,
@@ -10,9 +9,10 @@ import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
 import { inject, ref } from 'vue'
 import AccountControl from '@/components/auth/AccountControl.vue'
+import { TOOL_CATALOG, type ToolRouteName } from '@/config/toolCatalog'
 
 interface NavigationItem {
-  name: 'home' | 'sect-mission'
+  name: 'home' | ToolRouteName
   label: string
   icon: Component
 }
@@ -42,9 +42,13 @@ function toggleSidebar(): void {
   }
 }
 
-const navigationItems: NavigationItem[] = [
+const navigationItems: readonly NavigationItem[] = [
   { name: 'home', label: '首页', icon: Home },
-  { name: 'sect-mission', label: '师门助手', icon: ClipboardClock },
+  ...TOOL_CATALOG.map(({ routeName, label, icon }) => ({
+    name: routeName,
+    label,
+    icon,
+  })),
 ]
 </script>
 
@@ -148,6 +152,7 @@ const navigationItems: NavigationItem[] = [
           active-class="app-layout__navigation-link--active"
           :to="{ name: item.name }"
           :aria-current="route.name === item.name ? 'page' : undefined"
+          :aria-label="item.label"
         >
           <component
             :is="item.icon"
@@ -157,7 +162,10 @@ const navigationItems: NavigationItem[] = [
           <span>{{ item.label }}</span>
         </RouterLink>
       </nav>
-      <AccountControl @login="openAuthModal" />
+      <AccountControl
+        class="app-layout__mobile-account"
+        @login="openAuthModal"
+      />
     </header>
 
     <main
@@ -400,7 +408,9 @@ const navigationItems: NavigationItem[] = [
     padding-inline: 0.75rem;
   }
 
-  .app-layout__brand span {
+  .app-layout__brand span,
+  .app-layout__navigation-link span,
+  .app-layout__mobile-account :deep(div) {
     display: none;
   }
 
