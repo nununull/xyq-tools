@@ -1,7 +1,7 @@
-import { ClipboardClock, Map } from 'lucide-vue-next'
+import { ClipboardClock, Map, ScrollText } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper'
 
 export interface ToolCatalogItem {
   index: string
@@ -25,5 +25,12 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '奇遇攻略',
     description: '九色鹿上下路线按结局速查，照着选就行。',
     icon: Map,
+  },
+  {
+    index: '03',
+    routeName: 'artifact-helper',
+    label: '神器助手',
+    description: '起转神器材料和口碑速查，接不接当场判断。',
+    icon: ScrollText,
   },
 ]

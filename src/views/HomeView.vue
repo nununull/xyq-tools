@@ -128,7 +128,7 @@ h1 {
 
 .home-view__tool-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -188,6 +188,12 @@ h1 {
   color: var(--mint-700);
   font-size: 0.875rem;
   font-weight: 700;
+}
+
+@media (max-width: 56rem) {
+  .home-view__tool-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 40rem) {

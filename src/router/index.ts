@@ -18,5 +18,10 @@ export const router = createRouter({
       name: 'adventure-guides',
       component: () => import('@/views/AdventureGuidesView.vue'),
     },
+    {
+      path: '/artifact-helper',
+      name: 'artifact-helper',
+      component: () => import('@/views/ArtifactHelperView.vue'),
+    },
   ],
 })
