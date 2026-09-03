@@ -1,7 +1,7 @@
-import { ArrowLeftRight, ClipboardClock, Gem, Map, ScrollText } from 'lucide-vue-next'
+import { ArrowLeftRight, ClipboardClock, Gem, Leaf, Map, ScrollText } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator'
 
 export interface ToolCatalogItem {
   index: string
@@ -46,5 +46,12 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '合成计算',
     description: '宝石、五色灵尘、星辉石，单颗合成与连续打段算清楚。',
     icon: Gem,
+  },
+  {
+    index: '06',
+    routeName: 'growth-calculator',
+    label: '养成计算',
+    description: '修炼、技能、等级与进阶，一张预算算清单开和五开的养成花费。',
+    icon: Leaf,
   },
 ]

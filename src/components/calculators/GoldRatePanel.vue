@@ -58,7 +58,7 @@ const wanError = computed(() => store.preferences.rateWan.trim() && parseAmount(
           <span>1 元 <b>≈ {{ formatCoins(1 / store.yuanPerCoin) }}梦幻币</b></span>
           <span>100 万 <b>≈ {{ formatYuan(store.yuanPerCoin * COIN_UNITS.wan * 100) }} 元</b></span>
         </template>
-        <span v-else>填好比例，两页计算一起生效。</span>
+        <span v-else>填好比例，所有计算一起生效。</span>
       </div>
     </div>
     <p

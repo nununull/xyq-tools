@@ -50,7 +50,7 @@ function restorePreferences(value: unknown): CalculatorPreferences {
   return defaults
 }
 
-/** 维护两页共用的金价和输入偏好；计算结果始终派生，不重复保存。 */
+/** 维护各计算页共用的金价和输入偏好；计算结果始终派生，不重复保存。 */
 export const useCalculatorStore = defineStore('calculator', () => {
   const storageWarning = ref('')
   let initial = defaultPreferences()

@@ -33,5 +33,10 @@ export const router = createRouter({
       name: 'synthesis-calculator',
       component: () => import('@/views/SynthesisCalculatorView.vue'),
     },
+    {
+      path: '/growth-calculator',
+      name: 'growth-calculator',
+      component: () => import('@/views/GrowthCalculatorView.vue'),
+    },
   ],
 })
