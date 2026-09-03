@@ -364,6 +364,7 @@ const navigationItems: readonly NavigationItem[] = [
     top: 0;
     z-index: 10;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -380,6 +381,17 @@ const navigationItems: readonly NavigationItem[] = [
     gap: 0.25rem;
     min-width: 0;
     margin-top: 0;
+  }
+
+  .app-layout__topbar > .app-layout__navigation {
+    order: 1;
+    flex-basis: 100%;
+    overflow-x: auto;
+  }
+
+  .app-layout__topbar > .app-layout__navigation > a {
+    flex: 1 0 auto;
+    justify-content: center;
   }
 
   .app-layout__navigation-link {

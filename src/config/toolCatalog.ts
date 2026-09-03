@@ -1,7 +1,7 @@
-import { ClipboardClock, Map, ScrollText } from 'lucide-vue-next'
+import { ArrowLeftRight, ClipboardClock, Gem, Map, ScrollText } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator'
 
 export interface ToolCatalogItem {
   index: string
@@ -32,5 +32,19 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '神器助手',
     description: '起转神器材料和口碑速查，接不接当场判断。',
     icon: ScrollText,
+  },
+  {
+    index: '04',
+    routeName: 'currency-converter',
+    label: '金价换算',
+    description: '人民币与梦幻币互换，扣掉手续费，到手多少一眼看清。',
+    icon: ArrowLeftRight,
+  },
+  {
+    index: '05',
+    routeName: 'synthesis-calculator',
+    label: '合成计算',
+    description: '宝石、五色灵尘、星辉石，单颗合成与连续打段算清楚。',
+    icon: Gem,
   },
 ]

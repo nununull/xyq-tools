@@ -23,5 +23,15 @@ export const router = createRouter({
       name: 'artifact-helper',
       component: () => import('@/views/ArtifactHelperView.vue'),
     },
+    {
+      path: '/currency-converter',
+      name: 'currency-converter',
+      component: () => import('@/views/CurrencyConverterView.vue'),
+    },
+    {
+      path: '/synthesis-calculator',
+      name: 'synthesis-calculator',
+      component: () => import('@/views/SynthesisCalculatorView.vue'),
+    },
   ],
 })
