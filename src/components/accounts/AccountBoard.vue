@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { Star } from 'lucide-vue-next'
 import { VueDraggable } from 'vue-draggable-plus'
 import AccountCard from '@/components/accounts/AccountCard.vue'
 import { useToolStore } from '@/stores/useToolStore'
@@ -115,7 +116,13 @@ watch(
       class="account-board__recommendation"
       role="status"
     >
-      <span>★ 下一账号</span>
+      <span>
+        <Star
+          :size="14"
+          aria-hidden="true"
+        />
+        下一账号
+      </span>
       <strong>{{ recommendedAccount?.name ?? '暂无可推荐账号' }}</strong>
       <small>按有效耗时实时更新</small>
     </div>
@@ -224,6 +231,9 @@ watch(
 }
 
 .account-board__recommendation span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   font-weight: 800;
 }
 

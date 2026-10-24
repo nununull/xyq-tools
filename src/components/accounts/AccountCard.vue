@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /* global KeyboardEvent */
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
+import { BellRing, Circle, CircleCheck, GripVertical, Hourglass, Pause, Star, Timer } from 'lucide-vue-next'
 import type { Account, AccountStatus } from '@/types/domain'
 
 const props = defineProps<{
@@ -22,14 +23,16 @@ const emit = defineEmits<{
   move: [id: string, direction: 'up' | 'down']
 }>()
 
-const STATUS_LABELS: Record<AccountStatus, string> = {
-  idle: '未开始',
-  running: '计时中',
-  paused: '已暂停',
-  waiting: '高价值等待',
-  ready: '可以切回',
-  completed: '已完成',
+const STATUS_PRESENTATION: Record<AccountStatus, { label: string; icon: Component }> = {
+  idle: { label: '未开始', icon: Circle },
+  running: { label: '计时中', icon: Timer },
+  paused: { label: '已暂停', icon: Pause },
+  waiting: { label: '高价值等待', icon: Hourglass },
+  ready: { label: '可以切回', icon: BellRing },
+  completed: { label: '已完成', icon: CircleCheck },
 }
+
+const statusPresentation = computed(() => STATUS_PRESENTATION[props.account.status])
 
 const effectiveElapsedMs = computed(() => {
   if (props.account.status !== 'running' || props.account.startedAt === null) {
@@ -103,10 +106,7 @@ function handleSortKey(event: KeyboardEvent): void {
 <template>
   <article
     class="account-card"
-    :class="{
-      'account-card--recommended': recommended,
-      'account-card--completed': account.status === 'completed',
-    }"
+    :class="`account-card--${account.status}`"
     :aria-label="`账号 ${account.name}`"
   >
     <header class="account-card__header">
@@ -119,7 +119,10 @@ function handleSortKey(event: KeyboardEvent): void {
         :aria-disabled="!canMoveUp && !canMoveDown"
         @keydown="handleSortKey"
       >
-        <span aria-hidden="true">⠿</span>
+        <GripVertical
+          :size="18"
+          aria-hidden="true"
+        />
       </button>
       <div class="account-card__identity">
         <div class="account-card__name-line">
@@ -128,6 +131,10 @@ function handleSortKey(event: KeyboardEvent): void {
             v-if="recommended"
             class="account-card__recommendation"
           >
+            <Star
+              :size="12"
+              aria-hidden="true"
+            />
             推荐
           </span>
         </div>
@@ -137,9 +144,14 @@ function handleSortKey(event: KeyboardEvent): void {
       </div>
       <span
         class="account-card__status"
-        :class="`account-card__status--${account.status}`"
+        role="status"
       >
-        {{ STATUS_LABELS[account.status] }}
+        <component
+          :is="statusPresentation.icon"
+          :size="14"
+          aria-hidden="true"
+        />
+        {{ statusPresentation.label }}
       </span>
     </header>
 
@@ -174,11 +186,12 @@ function handleSortKey(event: KeyboardEvent): void {
         </button>
         <button
           v-if="account.status === 'paused' || account.status === 'ready'"
+          class="account-card__resume"
           type="button"
           :aria-label="`继续账号 ${account.name} 的计时`"
           @click="startAccount"
         >
-          继续
+          继续计时
         </button>
         <button
           v-if="account.status === 'running'"
@@ -242,23 +255,66 @@ function handleSortKey(event: KeyboardEvent): void {
 
 <style scoped>
 .account-card {
+  position: relative;
   display: grid;
   gap: 0.75rem;
   padding: 0.75rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
-  transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.account-card--recommended {
-  background: #fffaf0;
-  border-color: #c99538;
-  box-shadow: 0 0 0 0.125rem rgb(201 149 56 / 18%);
+.account-card--running {
+  background: #f3f9f5;
+  border-color: #a4cdbb;
+}
+
+/* 流光仅绘制在边框内，不遮挡内容，也不拦截拖拽和按钮点击。 */
+.account-card--running::before {
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  pointer-events: none;
+  content: '';
+  background: conic-gradient(
+    from var(--account-card-flow-angle),
+    transparent 0deg 230deg,
+    rgb(112 173 153 / 25%) 270deg,
+    #438f76 315deg,
+    transparent 360deg
+  );
+  border-radius: inherit;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: account-card-flow 4s linear infinite;
+}
+
+.account-card--paused {
+  background: #f5f7fa;
+  border-color: #c7d0de;
+}
+
+.account-card--waiting {
+  background: #fdfaf3;
+  border-color: #dfd1b4;
+}
+
+.account-card--ready {
+  background: #fff6df;
+  border-color: #bb8528;
+  box-shadow: 0 0 0 1px rgb(187 133 40 / 20%), 0 0.25rem 0.875rem rgb(187 133 40 / 10%);
+  animation: account-card-ready 1.4s ease-in-out 3;
 }
 
 .account-card--completed {
-  opacity: 0.72;
+  background: #f0f5f1;
+  border-color: #cddbd0;
+}
+
+.account-card--completed h3,
+.account-card--completed .account-card__timing strong {
+  color: var(--text-muted);
 }
 
 .account-card__header {
@@ -319,6 +375,10 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .account-card__recommendation,
 .account-card__status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.1875rem 0.4375rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -336,19 +396,29 @@ function handleSortKey(event: KeyboardEvent): void {
   background: var(--surface-soft);
 }
 
-.account-card__status--running,
-.account-card__status--ready {
-  color: var(--mint-700);
+.account-card--running .account-card__status {
+  color: var(--mint-800);
+  background: #dceee3;
 }
 
-.account-card__status--waiting {
+.account-card--paused .account-card__status {
+  color: #4f607a;
+  background: #e6ecf4;
+}
+
+.account-card--waiting .account-card__status {
   color: #8b5c20;
   background: #f5e8cf;
 }
 
-.account-card__status--completed {
-  color: var(--surface);
-  background: var(--text-muted);
+.account-card--ready .account-card__status {
+  color: #704811;
+  background: #f4d88f;
+}
+
+.account-card--completed .account-card__status {
+  color: #48634f;
+  background: #e1eee4;
 }
 
 .account-card__timing {
@@ -377,6 +447,11 @@ function handleSortKey(event: KeyboardEvent): void {
 
 .account-card__waiting strong {
   color: #8b5c20;
+  font-size: 1.25rem;
+}
+
+.account-card--running .account-card__timing > div:first-child strong {
+  color: var(--mint-800);
 }
 
 .account-card__high-value-count strong {
@@ -431,12 +506,51 @@ function handleSortKey(event: KeyboardEvent): void {
   border-color: #cba65e;
 }
 
+.account-card--ready .account-card__resume {
+  color: #fff;
+  background: #875b13;
+  border-color: #875b13;
+}
+
+.account-card--ready .account-card__resume:hover {
+  background: #704811;
+  border-color: #704811;
+}
+
+.account-card--completed .account-card__secondary {
+  color: var(--text-muted);
+}
+
 .account-card__text-action {
   border-color: transparent;
 }
 
 .account-card__text-action--danger {
   color: var(--danger);
+}
+
+@keyframes account-card-flow {
+  to {
+    --account-card-flow-angle: 360deg;
+  }
+}
+
+@keyframes account-card-ready {
+  50% {
+    box-shadow: 0 0 0 0.25rem rgb(187 133 40 / 16%), 0 0.25rem 1.25rem rgb(187 133 40 / 20%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-card,
+  .account-card--running::before {
+    animation: none;
+    transition: none;
+  }
+
+  .account-card--running::before {
+    background: none;
+  }
 }
 
 @media (max-width: 40rem) {

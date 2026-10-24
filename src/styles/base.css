@@ -1,3 +1,9 @@
+@property --account-card-flow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 :root {
   --mint-50: #f4f9f5;
   --mint-100: #e7f2ea;
@@ -119,43 +125,6 @@ a {
 .shop-card__drag-handle:hover {
   background: var(--mint-100);
   border-color: var(--border-strong);
-}
-
-.account-card__recommendation::before {
-  margin-right: 0.25rem;
-  content: "★";
-}
-
-.account-card__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.account-card__status::before {
-  width: 0.8rem;
-  text-align: center;
-  content: "○";
-}
-
-.account-card__status--running::before {
-  content: "▶";
-}
-
-.account-card__status--paused::before {
-  content: "Ⅱ";
-}
-
-.account-card__status--waiting::before {
-  content: "⌛";
-}
-
-.account-card__status--ready::before {
-  content: "!";
-}
-
-.account-card__status--completed::before {
-  content: "✓";
 }
 
 dialog.base-modal {
