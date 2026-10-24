@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { AdventureGuide } from '@/types/adventureGuide'
-
-defineProps<{
-  guides: readonly AdventureGuide[]
+withDefaults(defineProps<{
+  guides: readonly { id: string; title: string }[]
   modelValue: string
-}>()
+  label?: string
+}>(), { label: '选择奇遇攻略' })
 
 defineEmits<{
   'update:modelValue': [guideId: string]
@@ -15,7 +14,7 @@ defineEmits<{
   <div
     class="guide-selector"
     role="tablist"
-    aria-label="选择奇遇攻略"
+    :aria-label="label"
   >
     <button
       v-for="guide in guides"

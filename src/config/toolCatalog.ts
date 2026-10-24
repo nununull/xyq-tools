@@ -1,7 +1,7 @@
-import { ArrowLeftRight, ClipboardClock, Gem, Leaf, Map, ScrollText } from 'lucide-vue-next'
+import { ArrowLeftRight, ClipboardClock, Flag, Gem, Leaf, Map, ScrollText } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator' | 'flag-guides'
 
 export interface ToolCatalogItem {
   index: string
@@ -53,5 +53,12 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '养成计算',
     description: '修炼、技能、等级与进阶，一张预算算清单开和五开的养成花费。',
     icon: Leaf,
+  },
+  {
+    index: '07',
+    routeName: 'flag-guides',
+    label: '一步棋',
+    description: '按活动看定旗图、查插旗坐标，照着学会怎么定旗。',
+    icon: Flag,
   },
 ]

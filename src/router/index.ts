@@ -38,5 +38,10 @@ export const router = createRouter({
       name: 'growth-calculator',
       component: () => import('@/views/GrowthCalculatorView.vue'),
     },
+    {
+      path: '/flag-guides',
+      name: 'flag-guides',
+      component: () => import('@/views/FlagGuidesView.vue'),
+    },
   ],
 })
