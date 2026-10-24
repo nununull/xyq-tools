@@ -10,7 +10,8 @@ import zhuziNorthwest from '@/assets/flag-guides/bell-zhuzi-northwest.png'
 import zhuziNortheast from '@/assets/flag-guides/bell-zhuzi-northeast.png'
 import zhuziSouthwest from '@/assets/flag-guides/bell-zhuzi-southwest.png'
 import zhuziSoutheast from '@/assets/flag-guides/bell-zhuzi-southeast.png'
-import type { FlagGuide, FlagPoint, FlagSheet } from '@/types/flagGuide'
+import { BELL_THREE_FLAG_VARIANT } from '@/data/bellThreeFlagGuide'
+import type { FlagGuide, FlagGuideVariant, FlagPoint, FlagSheet } from '@/types/flagGuide'
 
 /** 从一份坐标表生成整面旗的展示数据，图片与表格共用同一个分区定义。 */
 function createBellSheet(
@@ -33,9 +34,9 @@ function createBellSheet(
   }
 }
 
-export const BELL_FLAG_GUIDE: FlagGuide = {
-  id: 'demon-subduing',
-  title: '降妖伏魔（铃铛）',
+const BELL_FOUR_FLAG_VARIANT: FlagGuideVariant = {
+  id: 'bell-four-flags',
+  title: '四面覆盖版',
   description: '傲来、长寿、朱紫按四个分区分别定旗。看任务坐标选最近落点，再去找怪。',
   preparation: '三张地图各做左上、右上、左下、右下四面旗，按地图和分区在背包中排好。',
   tips: [
@@ -87,4 +88,13 @@ export const BELL_FLAG_GUIDE: FlagGuide = {
       [110, 56], [98, 41], [123, 9], [146, 37], [152, 13], [182, 43], [186, 23],
     ]),
   ],
+}
+
+const BELL_VARIANTS = [BELL_THREE_FLAG_VARIANT, BELL_FOUR_FLAG_VARIANT] as const
+
+export const BELL_FLAG_GUIDE: FlagGuide = {
+  ...BELL_VARIANTS[0],
+  id: 'demon-subduing',
+  title: '降妖伏魔（铃铛）',
+  variants: BELL_VARIANTS,
 }

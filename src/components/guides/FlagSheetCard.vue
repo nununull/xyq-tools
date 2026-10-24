@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { Expand } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { FlagSheet } from '@/types/flagGuide'
 
-defineProps<{ sheet: FlagSheet }>()
+const props = defineProps<{ sheet: FlagSheet }>()
 defineEmits<{ preview: [sheet: FlagSheet] }>()
 
 const imageFailed = ref(false)
+
+/** 是否展示坐标表由当前卡片的数据派生，只有点位图时不生成空表或猜测坐标。 */
+const hasCoordinates = computed(() => props.sheet.plans.length > 0)
 </script>
 
 <template>
   <article class="flag-sheet">
     <header class="flag-sheet__header">
       <h3>{{ sheet.title }}</h3>
-      <span>按表中坐标定旗</span>
+      <span>{{ hasCoordinates ? '按表中坐标定旗' : '原图点位参考' }}</span>
     </header>
 
     <p
@@ -23,7 +26,10 @@ const imageFailed = ref(false)
       {{ sheet.notice }}
     </p>
 
-    <div class="flag-sheet__body">
+    <div
+      class="flag-sheet__body"
+      :class="{ 'flag-sheet__body--image-only': !hasCoordinates }"
+    >
       <figure class="flag-sheet__figure">
         <button
           v-if="!imageFailed"
@@ -53,12 +59,17 @@ const imageFailed = ref(false)
           class="flag-sheet__image-error"
           role="status"
         >
-          示例图未能加载，先按右侧坐标表查看，也可打开页尾的原攻略看图。
+          {{ hasCoordinates ? '示例图未能加载，可先查看坐标表，也可打开页尾的原攻略看图。' : '示例图未能加载，请打开页尾的原攻略查看点位图。' }}
         </p>
-        <figcaption>{{ sheet.imageDescription }}红点用于认位置，具体定点看坐标表。</figcaption>
+        <figcaption>
+          {{ sheet.imageDescription }}{{ hasCoordinates ? '红点用于认位置，具体定点看坐标表。' : '红点只表示位置参考，原文未提供逐点坐标。' }}
+        </figcaption>
       </figure>
 
-      <div class="flag-sheet__plans">
+      <div
+        v-if="hasCoordinates"
+        class="flag-sheet__plans"
+      >
         <section
           v-for="plan in sheet.plans"
           :key="plan.title"
@@ -150,6 +161,10 @@ figcaption {
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   align-items: start;
   gap: 1.5rem;
+}
+
+.flag-sheet__body--image-only {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .flag-sheet__figure {

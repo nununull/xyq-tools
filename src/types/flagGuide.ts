@@ -26,7 +26,7 @@ export interface FlagGuideSource {
   url: string
 }
 
-export interface FlagGuide {
+export interface FlagGuideVariant {
   id: string
   title: string
   description: string
@@ -34,4 +34,8 @@ export interface FlagGuide {
   tips: readonly string[]
   sheets: readonly FlagSheet[]
   source?: FlagGuideSource
+}
+
+export interface FlagGuide extends FlagGuideVariant {
+  variants?: readonly FlagGuideVariant[]
 }
