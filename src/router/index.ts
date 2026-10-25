@@ -48,5 +48,23 @@ export const router = createRouter({
       name: 'dungeon-guides',
       component: () => import('@/views/DungeonGuidesView.vue'),
     },
+    {
+      path: '/tips',
+      name: 'tips',
+      component: () => import('@/views/KnowledgeGuidesView.vue'),
+      props: { section: 'tips' },
+    },
+    {
+      path: '/achievements',
+      name: 'achievements',
+      component: () => import('@/views/KnowledgeGuidesView.vue'),
+      props: { section: 'achievements' },
+    },
+    {
+      path: '/summon-insights',
+      name: 'summon-insights',
+      component: () => import('@/views/KnowledgeGuidesView.vue'),
+      props: { section: 'summon-insights' },
+    },
   ],
 })

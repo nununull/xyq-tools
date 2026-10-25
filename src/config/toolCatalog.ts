@@ -1,7 +1,7 @@
-import { ArrowLeftRight, ClipboardClock, Flag, Gem, Leaf, Map, ScrollText, Swords } from 'lucide-vue-next'
+import { ArrowLeftRight, ClipboardClock, Flag, Gem, Leaf, Lightbulb, Map, PawPrint, ScrollText, Swords, Trophy } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator' | 'flag-guides' | 'dungeon-guides'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator' | 'flag-guides' | 'dungeon-guides' | 'tips' | 'achievements' | 'summon-insights'
 
 export interface ToolCatalogItem {
   index: string
@@ -67,5 +67,26 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '副本攻略',
     description: '按副本查准备、流程和关键机制，开刷之前先看避坑。',
     icon: Swords,
+  },
+  {
+    index: '09',
+    routeName: 'tips',
+    label: '小技巧',
+    description: '常用操作和快捷入口，遇到问题直接查做法。',
+    icon: Lightbulb,
+  },
+  {
+    index: '10',
+    routeName: 'achievements',
+    label: '成就',
+    description: '查达成条件、具体做法和易漏细节，顺手完成实用成就。',
+    icon: Trophy,
+  },
+  {
+    index: '11',
+    routeName: 'summon-insights',
+    label: '召唤兽心得',
+    description: '选宠、内丹、进阶与炼妖，分清机制和经验再做取舍。',
+    icon: PawPrint,
   },
 ]
