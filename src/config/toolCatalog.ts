@@ -1,7 +1,7 @@
-import { ArrowLeftRight, ClipboardClock, Flag, Gem, Leaf, Map, ScrollText } from 'lucide-vue-next'
+import { ArrowLeftRight, ClipboardClock, Flag, Gem, Leaf, Map, ScrollText, Swords } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator' | 'flag-guides'
+export type ToolRouteName = 'sect-mission' | 'adventure-guides' | 'artifact-helper' | 'currency-converter' | 'synthesis-calculator' | 'growth-calculator' | 'flag-guides' | 'dungeon-guides'
 
 export interface ToolCatalogItem {
   index: string
@@ -60,5 +60,12 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     label: '一步棋',
     description: '按活动看定旗图、查插旗坐标，照着学会怎么定旗。',
     icon: Flag,
+  },
+  {
+    index: '08',
+    routeName: 'dungeon-guides',
+    label: '副本攻略',
+    description: '按副本查准备、流程和关键机制，开刷之前先看避坑。',
+    icon: Swords,
   },
 ]

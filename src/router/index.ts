@@ -43,5 +43,10 @@ export const router = createRouter({
       name: 'flag-guides',
       component: () => import('@/views/FlagGuidesView.vue'),
     },
+    {
+      path: '/dungeon-guides',
+      name: 'dungeon-guides',
+      component: () => import('@/views/DungeonGuidesView.vue'),
+    },
   ],
 })
