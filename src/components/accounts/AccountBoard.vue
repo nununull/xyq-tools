@@ -249,8 +249,9 @@ watch(
 .account-board__list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  grid-auto-rows: 1fr;
   gap: 0.625rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .account-board__ghost {

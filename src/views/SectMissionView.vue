@@ -45,6 +45,7 @@ const editingAccount = computed<Account | undefined>(() =>
 )
 const editingDisabled = computed(() => !persistenceStore.initialized || persistenceStore.syncStatus === 'error' && persistenceStore.syncMessage.startsWith('数据初始化失败'))
 const statisticsUserId = computed(() => authStore.user?.id ?? null)
+const recommendedAccount = computed(() => toolStore.getRecommendedAccount())
 const waitingAccounts = computed(() =>
   toolStore.accounts
     .filter(({ status }) => status === 'waiting')
@@ -355,14 +356,14 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
             <span
               role="status"
               aria-live="polite"
-            >{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 可切回</span>
+            >{{ waitingAccounts.length }} 等待 · {{ readyAccounts.length }} 已就绪</span>
           </header>
 
           <p
             v-if="waitingAccounts.length === 0 && readyAccounts.length === 0"
             class="sect-mission-view__attention-empty"
           >
-            当前没有等待中或可切回的账号。
+            当前没有等待中或已就绪的账号。
           </p>
 
           <div
@@ -378,7 +379,7 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
                   :size="16"
                   aria-hidden="true"
                 />
-                可以切回
+                已到期
               </h3>
               <ul>
                 <li
@@ -389,12 +390,18 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
                   <strong>{{ account.name }}</strong>
                   <div>
                     <button
+                      v-if="recommendedAccount?.id === account.id"
+                      class="sect-mission-view__recommended-action"
                       type="button"
                       :aria-label="`继续账号 ${account.name} 的计时`"
                       @click="startAccount(account.id)"
                     >
-                      继续
+                      推荐继续
                     </button>
+                    <span
+                      v-else
+                      class="sect-mission-view__ready-status"
+                    >已就绪</span>
                     <button
                       class="sect-mission-view__secondary"
                       type="button"
@@ -670,12 +677,30 @@ watch(() => toolStore.lastSaveResult, showSaveFailure, { immediate: true })
 .sect-mission-view__ready-item > div {
   display: flex;
   flex: 0 0 auto;
+  align-items: center;
   gap: 0.5rem;
 }
 
 .sect-mission-view__ready-item button {
   padding: 0.5rem 0.625rem;
   font-size: 0.8125rem;
+}
+
+.sect-mission-view__ready-status {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.sect-mission-view__recommended-action {
+  color: #fff;
+  background: #875b13;
+  border-color: #875b13;
+}
+
+.sect-mission-view__recommended-action:hover {
+  background: #704811;
+  border-color: #704811;
 }
 
 @media (max-width: 68.749rem) {
