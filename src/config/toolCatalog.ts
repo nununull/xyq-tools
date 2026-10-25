@@ -86,7 +86,7 @@ export const TOOL_CATALOG: readonly ToolCatalogItem[] = [
     index: '11',
     routeName: 'summon-insights',
     label: '召唤兽心得',
-    description: '选宠、内丹、进阶与炼妖，分清机制和经验再做取舍。',
+    description: '山河社稷图双卷速查，查见闻条件、心得效果和解锁要求。',
     icon: PawPrint,
   },
 ]

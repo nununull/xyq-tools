@@ -101,6 +101,7 @@
 .knowledge-result p { margin: 0; }
 .knowledge-result strong { color: var(--text); }
 .knowledge-list { display: grid; gap: 0.75rem; }
+.knowledge-help { margin-bottom: 1rem; }
 
 .knowledge-card { min-width: 0; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 0.625rem; }
 .knowledge-card[open] { border-color: var(--border-strong); }

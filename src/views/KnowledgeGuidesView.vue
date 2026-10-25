@@ -77,6 +77,16 @@ watch(() => props.section, () => {
       <p>{{ collection.introduction }}</p>
     </header>
 
+    <div
+      v-if="collection.help"
+      class="knowledge-help"
+    >
+      <KnowledgeGuideCard
+        :guide="collection.help"
+        :initially-open="false"
+      />
+    </div>
+
     <section
       class="knowledge-browser"
       :aria-label="`查找${title}`"
@@ -165,7 +175,7 @@ watch(() => props.section, () => {
     </section>
 
     <p class="knowledge-note">
-      按所列公开资料整理，原文年份见出处。操作条件与费用请结合当前游戏界面核对；标为“经验建议”的内容需结合自己的队伍取舍。
+      {{ collection.note ?? '按所列公开资料整理，原文年份见出处。操作条件与费用请结合当前游戏界面核对；标为“经验建议”的内容需结合自己的队伍取舍。' }}
     </p>
   </div>
 </template>

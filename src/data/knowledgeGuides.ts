@@ -1,6 +1,6 @@
 import { ACHIEVEMENT_GUIDES } from '@/data/achievementGuides'
 import { PRACTICAL_TIPS } from '@/data/practicalTips'
-import { SUMMON_INSIGHTS } from '@/data/summonInsights'
+import { SUMMON_INSIGHTS, SUMMON_SCROLL_HELP } from '@/data/summonInsights'
 import type { KnowledgeCollection, KnowledgeSection } from '@/types/knowledgeGuide'
 
 export const KNOWLEDGE_REVIEWED_AT = '2026-10-25'
@@ -18,8 +18,10 @@ export const KNOWLEDGE_COLLECTIONS: Readonly<Record<KnowledgeSection, KnowledgeC
     guides: ACHIEVEMENT_GUIDES,
   },
   'summon-insights': {
-    introduction: '机制讲清规则，心得讲清适用场景，选宠和养成都有个准头。',
-    searchPlaceholder: '搜培养问题，如：须弥、内丹、进阶、炼妖',
+    introduction: '山河社稷图双卷速查：见闻之卷查完成条件，心得之卷查技能效果和解锁要求。',
+    searchPlaceholder: '搜召唤兽、见闻或心得，如：泡泡、苏醒、钟灵、花骨',
+    help: SUMMON_SCROLL_HELP,
+    note: '本页先收录已核对的常见见闻与心得，并非游戏全量清单。完成条件按所列图文整理，心得效果和等级参考 2025 实操表，哒探规则参考 2026 资料片；人物等级会影响可见与可用内容，操作前核对游戏内当前说明。',
     guides: SUMMON_INSIGHTS,
   },
 }

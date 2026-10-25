@@ -11,7 +11,9 @@ export interface KnowledgeGuide {
   topic: string
   kind: 'mechanic' | 'experience'
   summary: string
+  conditionLabel?: string
   condition: string
+  stepsLabel?: string
   steps: readonly string[]
   cautions: readonly string[]
   sources: readonly KnowledgeSource[]
@@ -26,5 +28,7 @@ export interface KnowledgeGuide {
 export interface KnowledgeCollection {
   introduction: string
   searchPlaceholder: string
+  help?: KnowledgeGuide
+  note?: string
   guides: readonly KnowledgeGuide[]
 }

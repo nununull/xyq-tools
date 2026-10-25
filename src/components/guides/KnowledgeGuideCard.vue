@@ -38,12 +38,12 @@ function logExpansion(event: { target: unknown }): void {
 
     <div class="knowledge-card__body">
       <p class="knowledge-card__condition">
-        <strong>适用条件</strong>{{ guide.condition }}
+        <strong>{{ guide.conditionLabel ?? '适用条件' }}</strong>{{ guide.condition }}
       </p>
       <div class="knowledge-card__instructions">
         <section :aria-labelledby="`${guide.id}-steps`">
           <h3 :id="`${guide.id}-steps`">
-            {{ guide.kind === 'experience' ? '怎么取舍' : '具体做法' }}
+            {{ guide.stepsLabel ?? (guide.kind === 'experience' ? '怎么取舍' : '具体做法') }}
           </h3>
           <ol>
             <li
