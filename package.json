@@ -10,7 +10,9 @@
     "dev": "vite",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint .",
-    "build": "npm run type-check && vite build"
+    "images:check": "node scripts/check-guide-images.mjs",
+    "images:optimize": "python scripts/optimize-guide-images.py",
+    "build": "npm run images:check && npm run type-check && vite build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

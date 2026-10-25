@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { CircleAlert, ExternalLink, Search, ShieldCheck } from 'lucide-vue-next'
 import GuideSelector from '@/components/guides/GuideSelector.vue'
+import GuideImageGallery from '@/components/guides/GuideImageGallery.vue'
 import { DUNGEON_CATEGORIES, DUNGEON_GUIDE_EDITION, DUNGEON_GUIDES } from '@/data/dungeonGuides'
 import type { DungeonCategory } from '@/types/dungeonGuide'
 import '@/styles/dungeon-guides.css'
@@ -250,6 +251,11 @@ function resetFilters(): void {
           </ol>
         </section>
       </div>
+      <GuideImageGallery
+        scope="dungeons"
+        :guide-id="activeGuide.id"
+        :title="activeGuide.title"
+      />
       <footer class="dungeon-sources">
         <strong>原始资料</strong>
         <a
@@ -262,7 +268,7 @@ function resetFilters(): void {
           :size="13"
           aria-hidden="true"
         /></a>
-        <p>这里整理通关要点，图示和细节可打开原文。开放条件、天命状态及奖励以游戏内提示为准。</p>
+        <p>通关要点与配图均在本站查看，原文链接保留用于核对出处。开放条件、天命状态及奖励以游戏内提示为准。</p>
       </footer>
     </section>
     <section

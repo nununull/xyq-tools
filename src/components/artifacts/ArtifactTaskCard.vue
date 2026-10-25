@@ -2,6 +2,7 @@
 import { ChevronDown, ExternalLink, PackageOpen, ShieldAlert } from 'lucide-vue-next'
 import { computed } from 'vue'
 import type { ArtifactTask } from '@/types/artifactGuide'
+import GuideImageGallery from '@/components/guides/GuideImageGallery.vue'
 
 const props = defineProps<{
   task: ArtifactTask
@@ -130,6 +131,11 @@ const materialCostLabel = computed(() => COST_META[props.task.materialCost])
           </footer>
         </div>
       </details>
+      <GuideImageGallery
+        scope="artifacts"
+        :guide-id="task.id"
+        :title="task.name"
+      />
     </div>
   </article>
 </template>

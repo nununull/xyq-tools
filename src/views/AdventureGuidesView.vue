@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import GuideSelector from '@/components/guides/GuideSelector.vue'
+import GuideImageGallery from '@/components/guides/GuideImageGallery.vue'
 import RouteCard from '@/components/guides/RouteCard.vue'
 import { ADVENTURE_GUIDES } from '@/data/adventureGuides'
 
@@ -60,6 +61,11 @@ const activeGuide = computed(() =>
       >
         攻略正在核对，暂不提供路线。
       </p>
+      <GuideImageGallery
+        scope="adventures"
+        :guide-id="activeGuide.id"
+        :title="activeGuide.title"
+      />
     </section>
   </div>
 </template>
