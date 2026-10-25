@@ -1,6 +1,6 @@
 import type { ArtifactSource, ArtifactTask } from '@/types/artifactGuide'
 
-export const ARTIFACT_GUIDE_VERIFIED_AT = '2026-08-31'
+export const ARTIFACT_GUIDE_VERIFIED_AT = '2026-10-25'
 
 const COMMUNITY_OVERVIEW: ArtifactSource = {
   label: '网友取舍汇总',
@@ -359,6 +359,25 @@ export const ARTIFACT_TASKS = [
     suggestedStars: '2—3 星',
     sources: [
       source('魔息角之怒实测', '2023-12-11', 'https://www.sohu.com/a/743097511_99983688'),
+    ],
+  },
+  {
+    id: 'human-seed-bag-enlightenment',
+    name: '人种袋之悟',
+    series: 'start',
+    verdict: 'conditional',
+    verdictNote: '烹饪不算多，高法伤和连续决战才是门槛。',
+    materialCost: 'medium',
+    materials: [
+      { name: '指定烹饪 ×5', detail: '交给小乞丐；实测有梅花酒、百味酒记录，品种和品质按当前任务提示采购。' },
+    ],
+    communitySummary: '2026 年新增的弥勒山神器·起。攻略评价跑图、解谜负担较轻，但三星法伤和连续战斗压力明显；建议带恢复门派与罗汉金钟，普通五开先从低星熟悉机制。',
+    cautions: ['黄眉童子的金铙会吸走召唤兽，及时处理金铙或补召', '供灯战低配队别先击破乞丐的供灯，否则后排会提前强化', '最终战连续四轮，开打前补满状态并准备接罗汉'],
+    suggestedStars: '先刷 1—2 星，熟练后再考虑 3 星',
+    sources: [
+      source('人种袋之悟全流程攻略', '2026-04-29', 'https://news.17173.com/content/04292026/163245654.shtml'),
+      source('人种袋之悟一星实测', '2026-04-24', 'https://www.sohu.com/a/1014119201_121119407'),
+      source('人种袋之悟三星材料与难度实测', '2026-05-23', 'https://www.233leyuan.com/post-detail/2058263610385563648'),
     ],
   },
   {
